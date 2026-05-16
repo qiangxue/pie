@@ -51,6 +51,15 @@ docs/pie/index.md
 
 Existing repository rules should be preserved.
 
+`/pie:init` also enforces spike isolation by updating applicable ignore/config files:
+
+- `.gitignore`: add `spikes/`;
+- `.eslintignore`: add `spikes/` and `docs/pie/` when ESLint ignore files are used;
+- `.npmignore`: add `spikes/` and `docs/pie/` when the repository is an npm package or already has `.npmignore`;
+- equivalent tooling excludes for detected lint, test, build, or package-publish systems.
+
+Existing rules and comments must be preserved. Missing PIE entries should be appended under a short `# PIE` section.
+
 ## `/pie:intent`
 
 Creates, lists, or switches intents.
@@ -100,6 +109,8 @@ spikes/<spike>/
 ```
 
 The `docs/pie/<intent>/spikes/<spike>/spike.md` file is the durable record. The top-level `spikes/<spike>/` directory is the working area. If the spike needs to touch real project files, record those paths and the reason in `spike.md`. Do not treat spike code as production code unless it is explicitly promoted later.
+
+Before creating or running spike code, verify the isolation excludes created by `/pie:init` are present.
 
 ## `/pie:distill`
 

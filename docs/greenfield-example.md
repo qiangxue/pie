@@ -40,6 +40,16 @@ docs/pie/
 docs/pie/index.md
 ```
 
+Claude should also enforce spike isolation before any spike code is created:
+
+```text
+.gitignore       # add spikes/
+.eslintignore    # add spikes/ and docs/pie/ when ESLint ignore files are used
+.npmignore       # add spikes/ and docs/pie/ for npm packages
+```
+
+For other detected tooling, such as Biome, Prettier, Stylelint, test runners, or package publishing, Claude should add equivalent excludes. Existing ignore rules should be preserved.
+
 `docs/pie/index.md` is the durable registry of PIE state. It tracks active intent, active spike, intent status, baseline status, child spikes, blockers, and artifact links.
 
 A new index starts roughly like this:
@@ -246,7 +256,7 @@ Review whether top-ranked results better represent actionable setups than binary
 Determines the likely core scoring architecture of the screener.
 ```
 
-The agent then works interactively with the user to implement and analyze the spike. Spike code should stay isolated from production tooling unless intentionally promoted.
+The agent then works interactively with the user to implement and analyze the spike. Before writing `spikes/vcp-scoring/scoring-prototype.ts`, Claude should verify that `/pie:init` has excluded `spikes/` from Git tracking and excluded `spikes/` and `docs/pie/` from applicable lint, test, build, and package-publish tooling. If those excludes are missing, Claude should add them before creating or running spike code.
 
 ## 6. Distill the Spike
 

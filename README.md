@@ -106,6 +106,8 @@ The durable spike record lives under `docs/pie/`. Spike-only code does not. Put 
 spikes/<spike>/
 ```
 
+PIE initialization should enforce this separation in tooling: `spikes/` should be ignored by Git, and `spikes/` plus `docs/pie/` should be excluded from lint, test, build, and package-publish inputs when those tools are present. `/pie:init` and `PIE init` are responsible for adding those excludes before spike code is created.
+
 ### Decision
 
 A decision is something that has become stable enough to guide delivery.

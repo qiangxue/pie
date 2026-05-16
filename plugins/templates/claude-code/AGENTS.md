@@ -18,6 +18,7 @@ Agents should:
 - recommend but do not silently accept decisions that still require human approval;
 - keep spikes tied to named uncertainties;
 - isolate spike work from production tooling;
+- enforce spike isolation in repository ignore, lint, test, and package-publish configuration during `/pie:init`;
 - garbage-collect spike work by disposition;
 - route delivery feedback back to PIE only when implementation changes intent.
 
@@ -48,6 +49,15 @@ Use these default filenames:
 - `preparation-baseline.md` only when existing-system preparation is needed before or alongside new intent.
 
 Use top-level `spikes/<spike>/` for spike-only code, fixtures, scripts, notes, and prototypes. Do not put experimental code under `docs/`.
+
+`/pie:init` must enforce isolation by adding PIE excludes to applicable tooling:
+
+- `.gitignore`: `spikes/`
+- `.eslintignore`: `spikes/` and `docs/pie/`, when present or when ESLint ignore files are used
+- `.npmignore`: `spikes/` and `docs/pie/`, when present or when the repository is an npm package
+- equivalent exclude settings for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package publishing, or language-specific lint/build systems
+
+Append missing entries under a short `# PIE` section and preserve existing ignore rules. Spike work should stay out of commits, lint/build pipelines, and published packages unless explicitly promoted.
 
 Use per-intent folders by default. Keep intent and spike names short, lowercase, and hyphenated.
 
@@ -120,6 +130,8 @@ Each spike must resolve a named uncertainty and belong to a parent intent.
 Spike code belongs under top-level `spikes/<spike>/`. Capture material findings in the spike artifact and then distill them into the parent intent.
 
 If a spike must touch real project files to gather evidence, record those paths in `spike.md` with the reason and disposition. Do not treat spike code as production code unless it is explicitly promoted after distillation or delivery planning.
+
+Before creating or running spike code, verify the isolation excludes from `/pie:init` are present. If not, update the relevant ignore/config files first.
 
 Spike branches may be used for deeper investigations. Summarize findings into the spike artifact before closing or archiving the branch.
 

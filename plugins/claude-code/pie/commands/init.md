@@ -19,7 +19,13 @@ Initialize PIE in the repository.
 9. Create `docs/pie/` if it does not exist.
 10. Create `docs/pie/index.md` if it does not exist.
 11. If `docs/pie/index.md` exists, preserve current entries and normalize only obviously missing sections.
-12. Preserve existing build, test, style, security, and environment instructions.
+12. Enforce spike isolation in repository tooling:
+   - ensure `.gitignore` contains `spikes/`;
+   - ensure `.eslintignore` contains `spikes/` and `docs/pie/` when the repository uses ESLint ignore files;
+   - ensure `.npmignore` contains `spikes/` and `docs/pie/` when the repository is an npm package or already has `.npmignore`;
+   - apply equivalent excludes for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package-publish configs, or language-specific lint/build systems;
+   - preserve existing ignore entries and comments; append missing PIE entries under a short `# PIE` section.
+13. Preserve existing build, test, style, security, and environment instructions.
 
 ## Index Template
 
@@ -45,5 +51,6 @@ Make the smallest useful repository change, then summarize:
 
 - which project-level PIE conventions were added;
 - whether `docs/pie/index.md` was created or updated;
+- which ignore/tooling files were updated for spike isolation;
 - where PIE artifacts should live;
 - which slash commands the project should use.

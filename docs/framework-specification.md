@@ -107,6 +107,8 @@ spikes/<spike>/
 
 The `docs/pie/.../spike.md` file is the durable record. The top-level `spikes/<spike>/` directory is the working area for experimental code. If the spike must touch the real application to gather evidence, the agent may edit normal project files, but it must record the touched paths in `spike.md`. Spike code should not become production code unless it is intentionally promoted during delivery.
 
+PIE initialization must enforce this separation in repository tooling. At minimum, `spikes/` must be excluded from Git tracking. When applicable, `spikes/` and `docs/pie/` must also be excluded from lint, test, build, and package-publish inputs unless the user explicitly promotes those artifacts.
+
 Spike metadata:
 
 ```yaml

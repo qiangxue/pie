@@ -18,9 +18,10 @@ Use Progressive Intent Engineering as an upstream operating policy for software 
 7. Treat spikes as child investigations under a parent intent.
 8. Use `/pie:distill` for broader synthesis of spike findings, long or branched conversations, accumulated evidence, or explicit checkpoints.
 9. Keep spikes tied to named uncertainties and isolated from production tooling.
-10. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
-11. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
-12. Route delivery feedback back to PIE only when implementation changes the intended work.
+10. During `/pie:init`, enforce spike isolation in repository ignore, lint, test, and package-publish configuration before spike code is created.
+11. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
+12. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
+13. Route delivery feedback back to PIE only when implementation changes the intended work.
 
 ## Artifact Defaults
 
@@ -38,6 +39,15 @@ docs/pie/
 ```
 
 Every PIE command must read and update `docs/pie/index.md` when active context, status, baseline state, or spike state changes.
+
+`/pie:init` must add or verify isolation excludes:
+
+- `.gitignore`: `spikes/`
+- `.eslintignore`: `spikes/` and `docs/pie/`, when present or when ESLint ignore files are used
+- `.npmignore`: `spikes/` and `docs/pie/`, when present or when the repository is an npm package
+- equivalent excludes for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package publishing, or language-specific lint/build systems
+
+Preserve existing ignore entries and comments. Append missing entries under a short `# PIE` section. `/pie:spike` should verify isolation before creating or running spike code.
 
 Each intent and spike should carry lightweight frontmatter metadata: `type`, `name`, `status`, `created_at`, `updated_at`, and relationship fields where relevant.
 

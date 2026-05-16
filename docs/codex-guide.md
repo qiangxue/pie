@@ -33,6 +33,7 @@ In Codex, ask:
 ```text
 Use PIE. Initialize durable PIE state in this repository:
 - create docs/pie/index.md if missing;
+- enforce spike isolation in Git, lint, test, and package-publish tooling;
 - preserve existing AGENTS.md guidance;
 - summarize the active PIE command model;
 - do not start implementation yet.
@@ -58,6 +59,13 @@ Use short, repeatable prompts. For example:
 | `PIE baseline` | Preview or refresh the Delivery Baseline without starting delivery. |
 
 The important part is not the prefix. The important part is that Codex follows the durable-state behavior in `AGENTS.md` and updates `docs/pie/`.
+
+`PIE init` should also add missing PIE excludes to applicable repository tooling:
+
+- `.gitignore`: `spikes/`;
+- `.eslintignore`: `spikes/` and `docs/pie/`, when ESLint ignore files are used;
+- `.npmignore`: `spikes/` and `docs/pie/`, when the repository is an npm package or already has `.npmignore`;
+- equivalent excludes for detected lint, test, build, or package-publish systems.
 
 ## 4. Use Codex Built-In Slash Commands Around PIE
 
@@ -104,6 +112,8 @@ spikes/<spike>/
 ```
 
 If a spike must touch real project files, Codex should record the touched paths and the reason in `spike.md`. Spike code should not become production code unless it is explicitly promoted after distillation or delivery planning.
+
+Before Codex creates or runs spike code, it should verify the isolation excludes from `PIE init` are present.
 
 ## 6. Practical Codex Session
 

@@ -14,6 +14,7 @@ When the user asks for work that may have unclear intent, Codex should:
 - apply the Convergence Rule automatically when a clarification answer, explicit user decision, or clearly settled conclusion resolves material ambiguity or changes intent;
 - use spikes for empirical uncertainty;
 - keep spike code outside `docs/` under top-level `spikes/<spike>/`;
+- enforce spike isolation in repository ignore, lint, test, and package-publish configuration during `PIE init`;
 - route feedback back to PIE only when implementation changes intent.
 
 ## Durable PIE State
@@ -41,6 +42,15 @@ spikes/
 ```
 
 Use short, lowercase, hyphenated names for intents and spikes.
+
+`PIE init` must enforce isolation by adding PIE excludes to applicable tooling:
+
+- `.gitignore`: `spikes/`
+- `.eslintignore`: `spikes/` and `docs/pie/`, when present or when ESLint ignore files are used
+- `.npmignore`: `spikes/` and `docs/pie/`, when present or when the repository is an npm package
+- equivalent exclude settings for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package publishing, or language-specific lint/build systems
+
+Append missing entries under a short `# PIE` section and preserve existing ignore rules. Spike work should not enter commits, lint/build pipelines, or published packages unless explicitly promoted.
 
 ## Prompt Commands
 
@@ -95,6 +105,8 @@ spikes/<spike>/
 ```
 
 If a spike touches real project files, record the touched paths, reason, and disposition in `spike.md`.
+
+Before creating or running spike code, verify the isolation excludes from `PIE init` are present. If not, update the relevant ignore/config files first.
 
 ## Distillation Behavior
 

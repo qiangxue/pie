@@ -46,6 +46,16 @@ docs/pie/
 docs/pie/index.md
 ```
 
+Claude should also enforce spike isolation before any spike code is created:
+
+```text
+.gitignore       # add spikes/
+.eslintignore    # add spikes/ and docs/pie/ when ESLint ignore files are used
+.npmignore       # add spikes/ and docs/pie/ for npm packages
+```
+
+For other detected tooling, such as Biome, Prettier, Stylelint, test runners, or package publishing, Claude should add equivalent excludes. Existing ignore rules should be preserved.
+
 The index is the durable registry of active intent, active spike, baseline status, blockers, and artifact links.
 
 ## 2. Start a Brownfield Intent
@@ -228,7 +238,7 @@ Determine whether alerting can be implemented directly or requires prerequisite 
 Determines whether to create a Preparation Baseline before the alert feature.
 ```
 
-This spike should stay isolated. If Claude writes exploratory code, it should keep it in scratch space or a disposable branch unless the user explicitly promotes it.
+This spike should stay isolated. If Claude writes exploratory code, it should keep it under `spikes/candidate-state/` or a disposable branch unless the user explicitly promotes it. Before writing spike code, Claude should verify that `/pie:init` excluded `spikes/` from Git tracking and excluded `spikes/` and `docs/pie/` from applicable lint, test, build, and package-publish tooling. If those excludes are missing, Claude should add them before creating or running spike code.
 
 ## 6. Distill the Spike
 
