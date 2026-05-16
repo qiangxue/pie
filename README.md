@@ -201,11 +201,7 @@ For command details, see [docs/claude-code-command-reference.md](docs/claude-cod
 
 ## Quick Start: Codex
 
-Copy or adapt the Codex template into your project root:
-
-```text
-plugins/templates/codex/AGENTS.md
-```
+Copy or adapt the Codex [AGENTS.md template](plugins/templates/codex/AGENTS.md) into your project root.
 
 If the project already has an `AGENTS.md`, merge the PIE sections instead of replacing existing rules.
 
@@ -228,16 +224,16 @@ PIE export lid
 
 For details, see [docs/codex-guide.md](docs/codex-guide.md).
 
-## Export Adapters
+## Working with Delivery Frameworks
 
-PIE can hand delivery-ready intent to downstream frameworks through adapters. In Claude Code, use:
+PIE can hand delivery-ready intent to downstream delivery frameworks, such as [Spec Kit](https://github.com/github/spec-kit) or [Linked-Intent Development](https://github.com/jszmajda/lid), through adapters. In Claude Code, use:
 
 - [`speckit`](https://github.com/github/spec-kit): `/pie:export speckit` writes `docs/pie/<intent>/exports/speckit-seed.md`.
 - [`lid`](https://github.com/jszmajda/lid): `/pie:export lid` writes `docs/pie/<intent>/exports/lid-seed.md`.
 
 In Codex, use `PIE export speckit` or `PIE export lid`.
 
-Adapters produce downstream seeds. They do not replace downstream workflows such as [Spec Kit](https://github.com/github/spec-kit) or [Linked-Intent Development](https://github.com/jszmajda/lid).
+Adapters produce downstream seeds. They do not replace downstream workflows.
 
 ## Examples
 
