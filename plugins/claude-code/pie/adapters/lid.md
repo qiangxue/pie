@@ -1,0 +1,138 @@
+# Adapter: [Linked-Intent Development](https://github.com/jszmajda/lid)
+
+## Purpose
+
+Convert a PIE Delivery Baseline into a seed for [Linked-Intent Development](https://github.com/jszmajda/lid) (LID), specifically the `jszmajda/lid` workflow.
+
+The adapter should support:
+
+```text
+/pie:export lid
+```
+
+The output is a PIE-owned seed artifact that helps [LID](https://github.com/jszmajda/lid) produce or update HLD, LLD, EARS specs, tests, and code traceability. It does not replace [LID](https://github.com/jszmajda/lid)'s review-driven design workflow.
+
+## Expected Downstream Workflow
+
+For Claude Code, [LID](https://github.com/jszmajda/lid) setup is normally:
+
+```text
+/plugin marketplace add jszmajda/lid
+/plugin install linked-intent-dev@jszmajda-lid
+/plugin install arrow-maintenance@jszmajda-lid
+/linked-intent-dev:lid-setup
+```
+
+[LID](https://github.com/jszmajda/lid)'s arrow of intent is:
+
+```text
+HLD -> LLDs -> EARS specs -> failing-first tests -> code with @spec anchors
+```
+
+## Source Artifact
+
+Read:
+
+```text
+docs/pie/<intent>/baseline.md
+```
+
+If the baseline is absent or stale, `/pie:export lid` must run the Ready for Delivery check and create or refresh the baseline before exporting.
+
+## Output Artifact
+
+Write:
+
+```text
+docs/pie/<intent>/exports/lid-seed.md
+```
+
+Update `docs/pie/index.md` with the export path and set the intent status to `in_delivery`.
+
+## Mapping
+
+| PIE Delivery Baseline | [LID](https://github.com/jszmajda/lid) Seed |
+|---|---|
+| Goal | HLD purpose / design-delta rationale |
+| Context | HLD background and project framing |
+| In-Scope Intent | Candidate LLD segment scope and behavior expectations |
+| Out of Scope | Explicit exclusions in HLD/LLD |
+| Clarified Decisions | HLD/LLD decisions |
+| Constraints and Non-Negotiables | HLD/LLD constraints |
+| Success Criteria | Candidate EARS claims and behavioral validation targets |
+| Explicit Assumptions | Design assumptions to confirm during [LID](https://github.com/jszmajda/lid) review |
+| Deferred Questions | [LID](https://github.com/jszmajda/lid) open questions |
+| Trace to PIE Discovery | Rationale and supporting evidence |
+
+## Seed Template
+
+````md
+---
+type: pie_export
+adapter: lid
+intent: <intent>
+source_baseline: docs/pie/<intent>/baseline.md
+created_at: YYYY-MM-DD
+status: seed
+---
+
+# [LID](https://github.com/jszmajda/lid) Seed - <Intent Title>
+
+## HLD Seed
+### Purpose
+What this system or change is for.
+
+### Problem / Opportunity
+Why it matters.
+
+### Approach
+The high-level direction settled by PIE.
+
+### Non-Goals
+What [LID](https://github.com/jszmajda/lid) should not include in the design.
+
+### Constraints
+Architectural, operational, product, compliance, or usability constraints.
+
+### Accepted Decisions
+Decisions already settled upstream in PIE.
+
+### Open Questions
+Questions [LID](https://github.com/jszmajda/lid) should keep visible during design review.
+
+## Candidate LLD Segments
+List likely LLDs or design areas. These are suggestions for [LID](https://github.com/jszmajda/lid) segmentation, not final boundaries.
+
+| Segment | Responsibility | Key Behaviors | Notes |
+|---|---|---|---|
+| <segment-name> | ... | ... | ... |
+
+## Candidate EARS Claims
+Draft only claims strongly implied by the baseline. [LID](https://github.com/jszmajda/lid) should review and refine them.
+
+- `<AREA>-001`: When <trigger>, the <system> shall <response>.
+
+## Testing / Traceability Expectations
+- Tests should be failing-first and cite EARS IDs.
+- Code should carry `@spec` anchors for implemented behaviors.
+- Keep traceability from HLD to LLDs to EARS to tests to code.
+
+## Suggested [LID](https://github.com/jszmajda/lid) Invocation
+```text
+/linked-intent-dev:lid-setup
+```
+
+After setup, give this seed to the [LID](https://github.com/jszmajda/lid) workflow as the starting intent/design context.
+
+## Trace to PIE
+- Baseline: docs/pie/<intent>/baseline.md
+- Intent: docs/pie/<intent>/intent.md
+- Supporting spikes:
+````
+
+## Rules
+
+- Do not generate final HLD, LLDs, EARS specs, tests, or code directly from PIE export.
+- Do not invent grep-addressable EARS IDs beyond draft suggestions unless [LID](https://github.com/jszmajda/lid) is actively producing specs.
+- If the PIE work changes an existing system's purpose, make that explicit as a design-delta seed.
+- If [LID](https://github.com/jszmajda/lid) review discovers intent-changing feedback, reconcile through `/pie:feedback <description>` before cascading downstream changes.

@@ -1,0 +1,26 @@
+{
+  "name": "pie",
+  "description": "Progressive Intent Engineering plugins for Claude Code.",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Qiang Xue"
+  },
+  "plugins": [
+    {
+      "name": "pie",
+      "source": "./plugins/claude-code/pie",
+      "description": "Progressive Intent Engineering workflows for Claude Code.",
+      "version": "1.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/qiangxue/pie",
+      "repository": "https://github.com/qiangxue/pie",
+      "category": "development-workflow",
+      "tags": [
+        "intent",
+        "discovery",
+        "planning",
+        "agents"
+      ]
+    }
+  ]
+}

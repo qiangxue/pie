@@ -1,0 +1,11 @@
+{
+  "name": "pie",
+  "version": "1.0.0",
+  "description": "Progressive Intent Engineering workflows for assessing, discovering, stabilizing, and exporting delivery-ready intent.",
+  "author": {
+    "name": "Qiang Xue"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/qiangxue/pie",
+  "repository": "https://github.com/qiangxue/pie"
+}
