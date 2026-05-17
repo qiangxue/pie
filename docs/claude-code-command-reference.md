@@ -12,6 +12,10 @@ docs/pie/
   <intent>/
     intent.md
     baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
     preparation-baseline.md
     exports/
     spikes/
@@ -77,9 +81,10 @@ When creating a new intent, the agent should:
 1. create `docs/pie/<intent>/intent.md`;
 2. register it in `docs/pie/index.md`;
 3. set it as active;
-4. assess maturity;
-5. ask focused clarification questions when needed;
-6. suggest spikes when empirical evidence is required.
+4. assign a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`;
+5. assess maturity;
+6. ask focused clarification questions when needed;
+7. suggest spikes when empirical evidence is required.
 
 Clarification answers should auto-trigger Convergence when they resolve material ambiguity.
 
@@ -151,10 +156,14 @@ The agent must:
 1. load active intent;
 2. run readiness check;
 3. create or refresh `baseline.md`;
-4. mark intent `in_delivery`;
-5. implement from the baseline.
+4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
+5. create a delivery ask record under `docs/pie/<intent>/asks/`;
+6. mark intent `in_delivery`;
+7. implement from the baseline revision.
 
 If not ready, the command should fail with blockers.
+
+The ask record should use `delivery_mode: direct`, `target_framework: direct`, and a downstream target such as `implementation-session-YYYY-MM-DD`.
 
 ## `/pie:export <adapter>`
 
@@ -174,9 +183,14 @@ The agent must:
 1. load active intent;
 2. run readiness check;
 3. create or refresh `baseline.md`;
-4. load the adapter spec;
-5. write under `docs/pie/<intent>/exports/`;
-6. mark intent `in_delivery`.
+4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
+5. create a delivery ask record under `docs/pie/<intent>/asks/`;
+6. load the adapter spec;
+7. write under `docs/pie/<intent>/exports/`;
+8. include PIE origin metadata in the export;
+9. mark intent `in_delivery`.
+
+When exporting the same intent to the same adapter again, default to updating the known downstream target for that adapter. Still create a new ask record for the new handoff. Create a new downstream target only when the user requests it, the work is materially independent, or the downstream framework requires it.
 
 ## `/pie:feedback`
 
@@ -192,8 +206,18 @@ Use it when delivery reveals:
 
 Routine implementation details should not churn PIE artifacts.
 
+When possible, feedback should reference a delivery ask:
+
+```text
+/pie:feedback "PIE-ASK-STOCK-SCREENER-SPECKIT-002 exposed an evaluation ambiguity."
+```
+
+If no ask ID is supplied, use the active intent's latest ask from `docs/pie/index.md`. The feedback record should retain `ask_id`, `baseline_id`, `downstream_target_id`, and `target_framework` when known.
+
 ## `/pie:baseline`
 
 Optional command for previewing or explicitly generating a Delivery Baseline without starting implementation or export.
 
 The normal workflow does not require it because `/pie:implement` and `/pie:export <adapter>` auto-create or refresh the baseline after readiness passes.
+
+When `/pie:baseline` is used explicitly and readiness passes, update `baseline.md` and create or refresh the next immutable snapshot under `docs/pie/<intent>/baselines/`. It does not create a delivery ask because no handoff has started.

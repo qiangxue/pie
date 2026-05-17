@@ -21,7 +21,8 @@ Use Progressive Intent Engineering as an upstream operating policy for software 
 10. During `/pie:init`, enforce spike isolation in repository ignore, lint, test, and package-publish configuration before spike code is created.
 11. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
 12. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
-13. Route delivery feedback back to PIE only when implementation changes the intended work.
+13. Preserve traceability from intent to baseline revision to delivery ask to downstream target.
+14. Route delivery feedback back to PIE only when implementation changes the intended work.
 
 ## Artifact Defaults
 
@@ -33,12 +34,17 @@ docs/pie/
   <intent>/
     intent.md
     baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
+    exports/
     spikes/
       <spike>/
         spike.md
 ```
 
-Every PIE command must read and update `docs/pie/index.md` when active context, status, baseline state, or spike state changes.
+Every PIE command must read and update `docs/pie/index.md` when active context, status, baseline state, delivery ask state, downstream target state, or spike state changes.
 
 `/pie:init` must add or verify isolation excludes:
 
@@ -49,7 +55,7 @@ Every PIE command must read and update `docs/pie/index.md` when active context, 
 
 Preserve existing ignore entries and comments. Append missing entries under a short `# PIE` section. `/pie:spike` should verify isolation before creating or running spike code.
 
-Each intent and spike should carry lightweight frontmatter metadata: `type`, `name`, `status`, `created_at`, `updated_at`, and relationship fields where relevant.
+Each intent and spike should carry lightweight frontmatter metadata: `type`, `name`, `status`, `created_at`, `updated_at`, and relationship fields where relevant. Each intent must also carry a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`.
 
 Small clear tasks may move quickly to `/pie:implement` or `/pie:export <adapter>`, but the delivery command still creates or refreshes the baseline if needed. Moderate ambiguity usually needs an intent plus decisions. Empirical uncertainty needs one or more spikes.
 
@@ -72,4 +78,6 @@ Create or refresh a Delivery Baseline only when:
 
 `/pie:baseline` may preview or explicitly generate a baseline, but it is not required in the normal flow. `/pie:implement` and `/pie:export <adapter>` should generate or refresh the baseline automatically after the readiness check passes.
 
-Export adapters live under `${CLAUDE_PLUGIN_ROOT}/adapters/`. `/pie:export speckit` writes `docs/pie/<intent>/exports/speckit-seed.md` for [Spec Kit](https://github.com/github/spec-kit); `/pie:export lid` writes `docs/pie/<intent>/exports/lid-seed.md` for [LID](https://github.com/jszmajda/lid). Adapter output is a downstream seed, not a replacement for the downstream workflow.
+Delivery commands must create an immutable baseline snapshot under `docs/pie/<intent>/baselines/` and a Delivery Ask record under `docs/pie/<intent>/asks/`. Ask records preserve the chain from `intent_id` to `baseline_id` to `ask_id` to the downstream target. If a downstream target ID is unknown at export time, record a proposed or pending target and update the ask when known. Re-exporting the same intent to the same adapter should default to updating the known downstream target while still creating a new ask record for the new handoff.
+
+Export adapters live under `${CLAUDE_PLUGIN_ROOT}/adapters/`. `/pie:export speckit` writes `docs/pie/<intent>/exports/speckit-seed.md` for [Spec Kit](https://github.com/github/spec-kit); `/pie:export lid` writes `docs/pie/<intent>/exports/lid-seed.md` for [LID](https://github.com/jszmajda/lid). Adapter output is a downstream seed, not a replacement for the downstream workflow. Adapter output must include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.

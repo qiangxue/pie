@@ -77,6 +77,7 @@ For brownfield work, the intent should explicitly include existing-system impact
 ```md
 ---
 type: intent
+intent_id: PIE-INTENT-STOCK-ALERTS
 name: stock-alerts
 status: discovering
 created_at: 2026-05-16
@@ -337,8 +338,10 @@ Claude should:
 1. load the active intent;
 2. run the readiness check for preparation work;
 3. create or refresh the baseline if needed;
-4. mark the intent `in_delivery`;
-5. implement the candidate-state store from the preparation baseline.
+4. create an immutable baseline snapshot;
+5. create a delivery ask record, for example `docs/pie/stock-alerts/asks/PIE-ASK-STOCK-ALERTS-DIRECT-001.md`;
+6. mark the intent `in_delivery`;
+7. implement the candidate-state store from the preparation baseline.
 
 During direct implementation, Claude may automatically apply feedback behavior if it discovers that preparation is materially different than expected.
 
@@ -362,6 +365,15 @@ Claude writes:
 docs/pie/stock-alerts/exports/speckit-seed.md
 docs/pie/stock-alerts/exports/lid-seed.md
 ```
+
+Each export also creates:
+
+```text
+docs/pie/stock-alerts/baselines/PIE-BASELINE-STOCK-ALERTS-R1.md
+docs/pie/stock-alerts/asks/PIE-ASK-STOCK-ALERTS-SPECKIT-001.md
+```
+
+The downstream seed should include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.
 
 Use [Spec Kit](https://github.com/github/spec-kit) when the team wants a spec -> plan -> tasks -> implementation path.
 
@@ -408,6 +420,14 @@ docs/pie/stock-alerts/baseline.md
 
 for the actual alert feature.
 
+If this is a revised delivery after preparation feedback, PIE creates the next baseline revision and a new ask record while keeping the same stable intent ID:
+
+```text
+PIE-INTENT-STOCK-ALERTS
+  -> PIE-BASELINE-STOCK-ALERTS-R2
+    -> PIE-ASK-STOCK-ALERTS-SPECKIT-002
+```
+
 ## 10. Feedback Loop
 
 Suppose downstream [Spec Kit](https://github.com/github/spec-kit) planning discovers:
@@ -418,6 +438,12 @@ Because this discovery happened in downstream delivery, use explicit feedback:
 
 ```text
 /pie:feedback "Spec Kit planning showed that candidate tier must be defined as absolute score-based or percentile-based before alert trigger semantics are stable."
+```
+
+If the exact ask is known, include it:
+
+```text
+/pie:feedback "PIE-ASK-STOCK-ALERTS-SPECKIT-002 showed that candidate tier must be defined as absolute score-based or percentile-based before alert trigger semantics are stable."
 ```
 
 Claude should:

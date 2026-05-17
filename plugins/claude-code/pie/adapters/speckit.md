@@ -30,7 +30,7 @@ Optional downstream commands such as `/speckit.clarify`, `/speckit.analyze`, and
 Read:
 
 ```text
-docs/pie/<intent>/baseline.md
+docs/pie/<intent>/baselines/<baseline_id>.md
 ```
 
 If the baseline is absent or stale, `/pie:export speckit` must run the Ready for Delivery check and create or refresh the baseline before exporting.
@@ -43,7 +43,15 @@ Write:
 docs/pie/<intent>/exports/speckit-seed.md
 ```
 
-Update `docs/pie/index.md` with the export path and set the intent status to `in_delivery`.
+Also create a Delivery Ask record under:
+
+```text
+docs/pie/<intent>/asks/<ask_id>.md
+```
+
+Update `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and set the intent status to `in_delivery`.
+
+On repeated export of the same intent to [Spec Kit](https://github.com/github/spec-kit), default to updating the known downstream target if one exists. Create a new downstream target only when the user requests it, the ask is materially independent, or [Spec Kit](https://github.com/github/spec-kit) requires it.
 
 ## Mapping
 
@@ -67,12 +75,22 @@ Update `docs/pie/index.md` with the export path and set the intent status to `in
 type: pie_export
 adapter: speckit
 intent: <intent>
-source_baseline: docs/pie/<intent>/baseline.md
+source_intent_id: PIE-INTENT-<INTENT-SLUG>
+source_baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+source_baseline: docs/pie/<intent>/baselines/<baseline_id>.md
+ask_id: PIE-ASK-<INTENT-SLUG>-SPECKIT-<NNN>
+downstream_target_id: <known-or-proposed-target-id>
+downstream_target_kind: new_feature_seed|existing_feature_update
 created_at: YYYY-MM-DD
 status: seed
 ---
 
 # [Spec Kit](https://github.com/github/spec-kit) Seed - <Intent Title>
+
+## PIE Origin
+- PIE Intent: `PIE-INTENT-<INTENT-SLUG>`
+- PIE Delivery Baseline: `PIE-BASELINE-<INTENT-SLUG>-R<N>`
+- PIE Delivery Ask: `PIE-ASK-<INTENT-SLUG>-SPECKIT-<NNN>`
 
 ## Feature Summary
 One concise paragraph describing what [Spec Kit](https://github.com/github/spec-kit) should specify.
@@ -119,8 +137,9 @@ Use this section later with `/speckit.plan` if it is already known. Do not inven
 - Testing expectations:
 
 ## Trace to PIE
-- Baseline: docs/pie/<intent>/baseline.md
+- Baseline: docs/pie/<intent>/baselines/<baseline_id>.md
 - Intent: docs/pie/<intent>/intent.md
+- Ask: docs/pie/<intent>/asks/<ask_id>.md
 - Supporting spikes:
 ````
 
@@ -131,3 +150,4 @@ Use this section later with `/speckit.plan` if it is already known. Do not inven
 - Keep unresolved but non-blocking questions explicit.
 - If export reveals missing delivery-critical intent, stop and reopen PIE instead of inventing requirements.
 - If [Spec Kit](https://github.com/github/spec-kit) later discovers intent-changing feedback, reconcile through `/pie:feedback <description>` and then regenerate or patch this seed.
+- Preserve the `PIE Origin` block in downstream [Spec Kit](https://github.com/github/spec-kit) artifacts when practical.

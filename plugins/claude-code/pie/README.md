@@ -52,3 +52,11 @@ Adapter specs live in `adapters/`:
 - [`lid`](https://github.com/jszmajda/lid): `/pie:export lid` writes `docs/pie/<intent>/exports/lid-seed.md`.
 
 PIE adapters produce downstream seeds. They do not replace the downstream framework workflow.
+
+Delivery commands preserve PIE traceability:
+
+```text
+PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
+```
+
+`/pie:implement` and `/pie:export <adapter>` create immutable baseline snapshots under `docs/pie/<intent>/baselines/` and ask records under `docs/pie/<intent>/asks/`. Adapter output includes a `PIE Origin` block with the intent ID, baseline ID, and ask ID.

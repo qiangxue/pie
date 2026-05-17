@@ -50,7 +50,7 @@ Claude should also enforce spike isolation before any spike code is created:
 
 For other detected tooling, such as Biome, Prettier, Stylelint, test runners, or package publishing, Claude should add equivalent excludes. Existing ignore rules should be preserved.
 
-`docs/pie/index.md` is the durable registry of PIE state. It tracks active intent, active spike, intent status, baseline status, child spikes, blockers, and artifact links.
+`docs/pie/index.md` is the durable registry of PIE state. It tracks active intent, active spike, intent status, baseline revisions, delivery asks, downstream targets, child spikes, blockers, and artifact links.
 
 A new index starts roughly like this:
 
@@ -62,8 +62,8 @@ A new index starts roughly like this:
 - Active spike: none
 
 ## Intents
-| Intent | Status | Delivery Baseline | Open Spikes | Last Updated |
-|---|---|---:|---:|---|
+| Intent | Intent ID | Status | Delivery Baseline | Latest Ask | Open Spikes | Last Updated |
+|---|---|---|---|---|---:|---|
 
 ## Intent Details
 ```
@@ -88,6 +88,7 @@ The intent artifact should include lightweight metadata:
 ```md
 ---
 type: intent
+intent_id: PIE-INTENT-STOCK-SCREENER
 name: stock-screener
 status: discovering
 created_at: 2026-05-16
@@ -357,8 +358,11 @@ Claude should:
 1. load the active intent from `docs/pie/index.md`;
 2. run the Ready for Delivery check;
 3. create or refresh `docs/pie/stock-screener/baseline.md`;
-4. export a [Spec Kit](https://github.com/github/spec-kit) seed, for example `docs/pie/stock-screener/exports/speckit-seed.md`;
-5. mark the intent `in_delivery`.
+4. create an immutable baseline snapshot, for example `docs/pie/stock-screener/baselines/PIE-BASELINE-STOCK-SCREENER-R1.md`;
+5. create a delivery ask record, for example `docs/pie/stock-screener/asks/PIE-ASK-STOCK-SCREENER-SPECKIT-001.md`;
+6. export a [Spec Kit](https://github.com/github/spec-kit) seed, for example `docs/pie/stock-screener/exports/speckit-seed.md`;
+7. include PIE origin metadata in the seed;
+8. mark the intent `in_delivery`.
 
 Example response:
 
@@ -367,11 +371,18 @@ Intent stock-screener is ready for delivery.
 
 Actions taken:
 1. Generated Delivery Baseline.
-2. Exported [Spec Kit](https://github.com/github/spec-kit) seed from the baseline.
-3. Marked the intent as in_delivery.
+2. Created baseline revision PIE-BASELINE-STOCK-SCREENER-R1.
+3. Created delivery ask PIE-ASK-STOCK-SCREENER-SPECKIT-001.
+4. Exported [Spec Kit](https://github.com/github/spec-kit) seed from the baseline revision.
+5. Marked the intent as in_delivery.
 
 Export target:
 - [Spec Kit](https://github.com/github/spec-kit)
+
+PIE origin:
+- PIE Intent: PIE-INTENT-STOCK-SCREENER
+- PIE Delivery Baseline: PIE-BASELINE-STOCK-SCREENER-R1
+- PIE Delivery Ask: PIE-ASK-STOCK-SCREENER-SPECKIT-001
 ```
 
 PIE remains upstream. [Spec Kit](https://github.com/github/spec-kit) owns the structured specification, plan, tasks, and implementation workflow.
@@ -389,8 +400,11 @@ Claude should:
 1. load the active intent from `docs/pie/index.md`;
 2. run the Ready for Delivery check;
 3. create or refresh `docs/pie/stock-screener/baseline.md`;
-4. export a [LID](https://github.com/jszmajda/lid) seed, for example `docs/pie/stock-screener/exports/lid-seed.md`;
-5. mark the intent `in_delivery`.
+4. create an immutable baseline snapshot;
+5. create a delivery ask record;
+6. export a [LID](https://github.com/jszmajda/lid) seed, for example `docs/pie/stock-screener/exports/lid-seed.md`;
+7. include PIE origin metadata in the seed;
+8. mark the intent `in_delivery`.
 
 The [LID](https://github.com/jszmajda/lid) seed should translate the Delivery Baseline into HLD/LLD/EARS-oriented starting material:
 
@@ -417,8 +431,10 @@ Claude should:
 1. load the active intent from `docs/pie/index.md`;
 2. run the Ready for Delivery check;
 3. create or refresh `docs/pie/stock-screener/baseline.md`;
-4. mark the intent `in_delivery`;
-5. begin implementation from the baseline.
+4. create an immutable baseline snapshot;
+5. create a delivery ask record, for example `docs/pie/stock-screener/asks/PIE-ASK-STOCK-SCREENER-DIRECT-001.md`;
+6. mark the intent `in_delivery`;
+7. begin implementation from the baseline revision.
 
 A likely first project shape:
 
@@ -438,6 +454,11 @@ docs/
     stock-screener/
       intent.md
       baseline.md
+      baselines/
+        PIE-BASELINE-STOCK-SCREENER-R1.md
+      asks/
+        PIE-ASK-STOCK-SCREENER-SPECKIT-001.md
+        PIE-ASK-STOCK-SCREENER-DIRECT-001.md
       exports/
         speckit-seed.md
         lid-seed.md
@@ -468,6 +489,12 @@ When implementation is happening through a downstream delivery framework such as
 
 ```text
 /pie:feedback "Spec Kit planning showed that ranking quality cannot be specified without choosing whether evaluation targets future breakout performance, visual setup quality, or risk/reward quality."
+```
+
+If the user knows the exact ask, include it in the feedback:
+
+```text
+/pie:feedback "PIE-ASK-STOCK-SCREENER-SPECKIT-001 showed that ranking quality cannot be specified without choosing whether evaluation targets future breakout performance, visual setup quality, or risk/reward quality."
 ```
 
 Claude should respond:

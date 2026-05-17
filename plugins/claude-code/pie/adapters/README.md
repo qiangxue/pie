@@ -20,3 +20,21 @@ docs/pie/<intent>/exports/
 ```
 
 The active intent, baseline state, and export artifact path must also be reflected in `docs/pie/index.md`.
+
+Each export must also create or reference:
+
+```text
+docs/pie/<intent>/baselines/<baseline_id>.md
+docs/pie/<intent>/asks/<ask_id>.md
+```
+
+Adapter output should include:
+
+```md
+## PIE Origin
+- PIE Intent: `<intent_id>`
+- PIE Delivery Baseline: `<baseline_id>`
+- PIE Delivery Ask: `<ask_id>`
+```
+
+This keeps downstream work traceable without making PIE own downstream planning.

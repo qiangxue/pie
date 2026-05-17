@@ -39,8 +39,8 @@ Use this shape for a new `docs/pie/index.md`:
 - Active spike: none
 
 ## Intents
-| Intent | Status | Delivery Baseline | Open Spikes | Last Updated |
-|---|---|---:|---:|---|
+| Intent | Intent ID | Status | Delivery Baseline | Latest Ask | Open Spikes | Last Updated |
+|---|---|---|---|---|---:|---|
 
 ## Intent Details
 ```

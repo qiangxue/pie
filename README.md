@@ -127,6 +127,17 @@ A Delivery Baseline is the handoff from PIE into implementation or a downstream 
 
 The baseline is not a speculative plan. It is the current stable intent that delivery is allowed to rely on.
 
+Each handoff is traceable. PIE gives the intent a stable ID, snapshots each delivery-ready baseline as a revision, and records each direct implementation or export as a Delivery Ask. That creates a lightweight chain:
+
+```text
+PIE Intent ID
+-> Delivery Baseline ID
+-> Delivery Ask ID
+-> Downstream Target ID
+```
+
+This matters when the same intent is delivered more than once. A stock screener may export one baseline to [Spec Kit](https://github.com/github/spec-kit), receive planning feedback, reopen discovery, and later export a revised baseline to the same downstream target. PIE keeps those iterations connected without taking over downstream planning.
+
 ### Feedback
 
 Feedback is how PIE keeps intent honest during delivery.
@@ -152,6 +163,10 @@ docs/pie/
   <intent>/
     intent.md
     baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
     preparation-baseline.md
     exports/
     spikes/
@@ -235,6 +250,8 @@ In Codex, use `PIE export speckit` or `PIE export lid`.
 
 Adapters produce downstream seeds. They do not replace downstream workflows.
 
+Each export creates a delivery ask record and adds a `PIE Origin` block to the seed, so later feedback can point back to the exact intent and baseline revision that produced the downstream ask.
+
 ## Examples
 
 Start with the examples if you want to see PIE in context:
@@ -275,6 +292,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Contributions should preserve PIE's main
 - keep the workflow lightweight;
 - avoid turning discovery into ceremony;
 - maintain durable state outside chat history;
+- preserve traceability across baseline revisions, delivery asks, and feedback;
 - keep downstream delivery frameworks downstream.
 
 ## License

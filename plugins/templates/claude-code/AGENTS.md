@@ -20,6 +20,7 @@ Agents should:
 - isolate spike work from production tooling;
 - enforce spike isolation in repository ignore, lint, test, and package-publish configuration during `/pie:init`;
 - garbage-collect spike work by disposition;
+- preserve traceability from intent ID to baseline revision to delivery ask to downstream target;
 - route delivery feedback back to PIE only when implementation changes intent.
 
 ## Durable State And Spike Work
@@ -32,6 +33,11 @@ docs/pie/
   <intent>/
     intent.md
     baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
+    exports/
     spikes/
       <spike>/
         spike.md
@@ -39,12 +45,14 @@ spikes/
   <spike>/
 ```
 
-`docs/pie/index.md` is the registry of durable PIE state. It tracks active intent, active spike, intent statuses, baseline status, open spikes, blockers, and artifact links.
+`docs/pie/index.md` is the registry of durable PIE state. It tracks active intent, active spike, intent statuses, baseline revisions, delivery asks, downstream targets, open spikes, blockers, and artifact links.
 
 Use these default filenames:
 
 - `intent.md` for the parent intent.
 - `baseline.md` for delivery-ready intent.
+- `baselines/<baseline_id>.md` for immutable baseline revision snapshots.
+- `asks/<ask_id>.md` for delivery ask records.
 - `docs/pie/<intent>/spikes/<spike>/spike.md` for child empirical investigations.
 - `preparation-baseline.md` only when existing-system preparation is needed before or alongside new intent.
 
@@ -91,12 +99,22 @@ Use `/pie:decision <description>` for manual recording, affirmation, override, o
 
 `/pie:baseline` is optional. `/pie:implement` and `/pie:export <adapter>` should run the readiness check and generate or refresh the Delivery Baseline automatically.
 
+Delivery commands should create an immutable baseline snapshot and a delivery ask record. Preserve this chain:
+
+```text
+PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
+```
+
+If a downstream target ID is not known at export time, record it as pending or proposed and update the ask when known. Re-exporting the same intent to the same adapter should default to updating the known downstream target while still creating a new ask record for the new handoff.
+
 PIE export adapters write downstream seeds under `docs/pie/<intent>/exports/`. Supported adapters:
 
 - `/pie:export speckit` -> `speckit-seed.md` for [Spec Kit](https://github.com/github/spec-kit)
 - `/pie:export lid` -> `lid-seed.md` for [LID](https://github.com/jszmajda/lid)
 
 Adapters produce seeds for downstream workflows. They should not replace [Spec Kit](https://github.com/github/spec-kit) or [LID](https://github.com/jszmajda/lid).
+
+Adapter output should include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.
 
 For direct implementation, the agent may automatically apply feedback behavior when it discovers intent-changing information. For downstream delivery frameworks, use `/pie:feedback <description>` explicitly to reconcile findings back into PIE.
 

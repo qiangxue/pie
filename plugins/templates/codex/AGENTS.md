@@ -15,6 +15,7 @@ When the user asks for work that may have unclear intent, Codex should:
 - use spikes for empirical uncertainty;
 - keep spike code outside `docs/` under top-level `spikes/<spike>/`;
 - enforce spike isolation in repository ignore, lint, test, and package-publish configuration during `PIE init`;
+- preserve traceability from intent ID to baseline revision to delivery ask to downstream target;
 - route feedback back to PIE only when implementation changes intent.
 
 ## Durable PIE State
@@ -27,8 +28,12 @@ docs/pie/
   <intent>/
     intent.md
     baseline.md
-    preparation-baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
     exports/
+    preparation-baseline.md
     spikes/
       <spike>/
         spike.md
@@ -126,14 +131,24 @@ Distillation should update durable artifacts, record settled decisions, recommen
 1. load the active intent;
 2. run the readiness check;
 3. create or refresh `baseline.md`;
-4. mark the intent `in_delivery`;
-5. implement from the baseline.
+4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
+5. create a delivery ask record under `docs/pie/<intent>/asks/`;
+6. mark the intent `in_delivery`;
+7. implement from the baseline revision.
 
 `PIE export <adapter>` should do the same readiness and baseline work, then write a downstream seed under:
 
 ```text
 docs/pie/<intent>/exports/
 ```
+
+Delivery must preserve this chain:
+
+```text
+PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
+```
+
+Adapter output should include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID. If a downstream target ID is unknown, record a pending or proposed target in the ask and update it when known. Re-exporting the same intent to the same adapter should default to updating the known downstream target while still creating a new ask record.
 
 Supported adapters:
 

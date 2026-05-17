@@ -34,7 +34,7 @@ HLD -> LLDs -> EARS specs -> failing-first tests -> code with @spec anchors
 Read:
 
 ```text
-docs/pie/<intent>/baseline.md
+docs/pie/<intent>/baselines/<baseline_id>.md
 ```
 
 If the baseline is absent or stale, `/pie:export lid` must run the Ready for Delivery check and create or refresh the baseline before exporting.
@@ -47,7 +47,15 @@ Write:
 docs/pie/<intent>/exports/lid-seed.md
 ```
 
-Update `docs/pie/index.md` with the export path and set the intent status to `in_delivery`.
+Also create a Delivery Ask record under:
+
+```text
+docs/pie/<intent>/asks/<ask_id>.md
+```
+
+Update `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and set the intent status to `in_delivery`.
+
+On repeated export of the same intent to [LID](https://github.com/jszmajda/lid), default to updating the known downstream target if one exists. Create a new downstream target only when the user requests it, the ask is materially independent, or [LID](https://github.com/jszmajda/lid) requires it.
 
 ## Mapping
 
@@ -71,12 +79,22 @@ Update `docs/pie/index.md` with the export path and set the intent status to `in
 type: pie_export
 adapter: lid
 intent: <intent>
-source_baseline: docs/pie/<intent>/baseline.md
+source_intent_id: PIE-INTENT-<INTENT-SLUG>
+source_baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+source_baseline: docs/pie/<intent>/baselines/<baseline_id>.md
+ask_id: PIE-ASK-<INTENT-SLUG>-LID-<NNN>
+downstream_target_id: <known-or-proposed-target-id>
+downstream_target_kind: new_scope_seed|existing_scope_update
 created_at: YYYY-MM-DD
 status: seed
 ---
 
 # [LID](https://github.com/jszmajda/lid) Seed - <Intent Title>
+
+## PIE Origin
+- PIE Intent: `PIE-INTENT-<INTENT-SLUG>`
+- PIE Delivery Baseline: `PIE-BASELINE-<INTENT-SLUG>-R<N>`
+- PIE Delivery Ask: `PIE-ASK-<INTENT-SLUG>-LID-<NNN>`
 
 ## HLD Seed
 ### Purpose
@@ -125,8 +143,9 @@ Draft only claims strongly implied by the baseline. [LID](https://github.com/jsz
 After setup, give this seed to the [LID](https://github.com/jszmajda/lid) workflow as the starting intent/design context.
 
 ## Trace to PIE
-- Baseline: docs/pie/<intent>/baseline.md
+- Baseline: docs/pie/<intent>/baselines/<baseline_id>.md
 - Intent: docs/pie/<intent>/intent.md
+- Ask: docs/pie/<intent>/asks/<ask_id>.md
 - Supporting spikes:
 ````
 
@@ -136,3 +155,4 @@ After setup, give this seed to the [LID](https://github.com/jszmajda/lid) workfl
 - Do not invent grep-addressable EARS IDs beyond draft suggestions unless [LID](https://github.com/jszmajda/lid) is actively producing specs.
 - If the PIE work changes an existing system's purpose, make that explicit as a design-delta seed.
 - If [LID](https://github.com/jszmajda/lid) review discovers intent-changing feedback, reconcile through `/pie:feedback <description>` before cascading downstream changes.
+- Preserve the `PIE Origin` block in downstream [LID](https://github.com/jszmajda/lid) artifacts when practical.

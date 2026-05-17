@@ -67,6 +67,7 @@ Intent metadata:
 ```yaml
 ---
 type: intent
+intent_id: PIE-INTENT-<INTENT-SLUG>
 name: <intent>
 status: discovering
 created_at: YYYY-MM-DD
@@ -76,6 +77,8 @@ delivery_baseline: absent
 recommended_next_step: clarify
 ---
 ```
+
+`intent_id` is the stable upstream identity for the work. It must not change when the intent matures, when delivery happens in multiple iterations, or when feedback reopens discovery.
 
 Recommended intent statuses:
 
@@ -154,11 +157,33 @@ Decision record shape:
 
 A Delivery Baseline is the delivery-facing summary of stable intent.
 
-It normally lives at:
+The latest readable baseline normally lives at:
 
 ```text
 docs/pie/<intent>/baseline.md
 ```
+
+Each delivery handoff must also create an immutable baseline revision snapshot:
+
+```text
+docs/pie/<intent>/baselines/<baseline_id>.md
+```
+
+Baseline metadata:
+
+```yaml
+---
+type: delivery_baseline
+baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+source_intent_id: PIE-INTENT-<INTENT-SLUG>
+revision: <N>
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+status: current
+---
+```
+
+`baseline.md` is the current convenience copy. Ask records must point to the immutable revision snapshot that was used for delivery.
 
 Baseline sections:
 
@@ -188,6 +213,52 @@ It normally lives at:
 docs/pie/<intent>/preparation-baseline.md
 ```
 
+### 3.6 Delivery Ask
+
+A Delivery Ask is a durable record of a handoff from PIE to direct implementation or a downstream delivery framework.
+
+It normally lives at:
+
+```text
+docs/pie/<intent>/asks/<ask_id>.md
+```
+
+Ask metadata:
+
+```yaml
+---
+type: delivery_ask
+ask_id: PIE-ASK-<INTENT-SLUG>-<TARGET>-<NNN>
+source_intent_id: PIE-INTENT-<INTENT-SLUG>
+source_baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+delivery_mode: direct|export
+target_framework: direct|speckit|lid
+created_at: YYYY-MM-DDTHH:mm:ss<offset>
+downstream_target:
+  framework: direct|speckit|lid
+  target_id: <known-or-proposed-target-id>
+  target_kind: implementation_session|new_feature_seed|existing_feature_update|new_scope_seed|existing_scope_update|unknown
+  status: pending|proposed|known|updated
+---
+```
+
+The ask record answers which intent produced the request, which baseline revision was used, where the work went, and when the handoff happened.
+
+If the downstream target ID is not known at export time, the ask may record a proposed or pending target. The ask, index, and export history should be updated when the downstream target becomes known.
+
+### 3.7 Traceability Chain
+
+Every delivery handoff must preserve this chain:
+
+```text
+PIE Intent ID
+  -> Delivery Baseline ID
+    -> Delivery Ask ID
+      -> Downstream Target ID
+```
+
+PIE does not model downstream task decomposition. It only preserves lineage between what was meant, what was handed off, where it went, and what came back.
+
 ## 4. Durable State
 
 PIE maintains an index:
@@ -202,11 +273,33 @@ The index tracks:
 - active spike;
 - intent statuses;
 - baseline status;
+- baseline revisions;
+- delivery ask history;
+- downstream target IDs when known;
 - child spikes;
 - major blockers;
 - artifact links.
 
-Every command that changes active context, status, baseline state, or spike state must update the index.
+Every command that changes active context, status, baseline state, delivery ask state, downstream target state, or spike state must update the index.
+
+Recommended durable state layout:
+
+```text
+docs/pie/
+  index.md
+  <intent>/
+    intent.md
+    baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
+    exports/
+    preparation-baseline.md
+    spikes/
+      <spike>/
+        spike.md
+```
 
 ## 5. Workflow
 
@@ -295,6 +388,15 @@ Export:
 
 Both commands create or refresh the Delivery Baseline after readiness passes.
 
+Each delivery command must also:
+
+- create a new immutable baseline revision if the delivery input changed;
+- create a Delivery Ask record;
+- update the intent and index export history;
+- include PIE origin metadata in downstream seed artifacts.
+
+When exporting the same intent to the same downstream framework again, PIE should default to updating the existing downstream target when one is known. It should still create a new ask record for the new handoff. A new downstream target should be created only when the user requests it, the work is materially independent, or the downstream framework requires it.
+
 ### 5.6 Reconcile feedback
 
 Use:
@@ -306,6 +408,18 @@ Use:
 when implementation, downstream planning, production, or user feedback changes intent.
 
 Routine implementation details should not churn PIE artifacts.
+
+Feedback should reference the delivery ask lineage when available:
+
+```yaml
+feedback_source:
+  ask_id: PIE-ASK-<INTENT-SLUG>-<TARGET>-<NNN>
+  baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+  downstream_target_id: <target-id>
+  target_framework: direct|speckit|lid
+```
+
+This lets PIE identify which intent to reopen, which baseline assumption was challenged, and whether a downstream seed or target must be regenerated or patched.
 
 ## 6. Brownfield Rule
 
@@ -327,3 +441,12 @@ Current adapters:
 - [`lid`](https://github.com/jszmajda/lid): writes `docs/pie/<intent>/exports/lid-seed.md`.
 
 If export reveals missing delivery-critical intent, stop and reopen PIE instead of inventing downstream requirements.
+
+Adapter outputs must include a bidirectional provenance block:
+
+```md
+## PIE Origin
+- PIE Intent: `PIE-INTENT-<INTENT-SLUG>`
+- PIE Delivery Baseline: `PIE-BASELINE-<INTENT-SLUG>-R<N>`
+- PIE Delivery Ask: `PIE-ASK-<INTENT-SLUG>-<TARGET>-<NNN>`
+```

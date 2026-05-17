@@ -19,9 +19,33 @@ Before creating a Delivery Baseline, confirm:
 
 If any item fails, do not create a baseline. Report blockers and recommend clarification, spike work, or distillation.
 
+## Delivery Baseline Revision
+
+Use `docs/pie/<intent>/baseline.md` as the latest readable baseline. When a baseline is generated for a delivery handoff, also create an immutable revision snapshot:
+
+```text
+docs/pie/<intent>/baselines/<baseline_id>.md
+```
+
+Use this metadata:
+
+```yaml
+---
+type: delivery_baseline
+baseline_id: PIE-BASELINE-<INTENT-SLUG>-R<N>
+source_intent_id: PIE-INTENT-<INTENT-SLUG>
+revision: <N>
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+status: current
+---
+```
+
+Increment `revision` from the previous baseline revision for the intent. `baseline.md` may be overwritten as the current convenience copy; files under `baselines/` are revision snapshots and should not be silently rewritten after they are used by a delivery ask.
+
 ## Delivery Baseline Template
 
-Use `docs/pie/<intent>/baseline.md`:
+Use this content in both the current baseline and revision snapshot:
 
 ```md
 # Delivery Baseline - [Delivery Unit]
@@ -55,4 +79,6 @@ Use `docs/pie/<intent>/preparation-baseline.md` only when existing-system prepar
 
 ## Output
 
-Create or update the appropriate baseline artifact only if ready. Update `docs/pie/index.md`. Keep the baseline concise, stable, and downstream-ready.
+Create or update the appropriate baseline artifact only if ready. Update `docs/pie/index.md` with the current baseline ID, revision, and path. Keep the baseline concise, stable, and downstream-ready.
+
+This command does not create a Delivery Ask. `/pie:implement` and `/pie:export <adapter>` create ask records when they begin a handoff.

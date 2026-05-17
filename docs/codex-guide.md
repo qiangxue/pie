@@ -7,6 +7,7 @@ Use PIE in Codex through:
 - `AGENTS.md` project guidance;
 - concise PIE prompt commands;
 - durable files under `docs/pie/`;
+- traceability from intent ID to baseline revision to delivery ask;
 - Codex built-in commands such as `/plan`, `/compact`, `/status`, `/review`, and `/plugins` when useful.
 
 Official Codex references:
@@ -59,6 +60,14 @@ Use short, repeatable prompts. For example:
 | `PIE baseline` | Preview or refresh the Delivery Baseline without starting delivery. |
 
 The important part is not the prefix. The important part is that Codex follows the durable-state behavior in `AGENTS.md` and updates `docs/pie/`.
+
+Delivery prompts should preserve this chain:
+
+```text
+PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
+```
+
+`PIE implement` and `PIE export <adapter>` should create immutable baseline snapshots under `docs/pie/<intent>/baselines/` and ask records under `docs/pie/<intent>/asks/`. Downstream seeds should include a `PIE Origin` block with the intent ID, baseline ID, and ask ID.
 
 `PIE init` should also add missing PIE excludes to applicable repository tooling:
 
@@ -144,3 +153,5 @@ When the intent is ready:
 ```text
 PIE implement: readiness-check, create or refresh the Delivery Baseline, and begin direct implementation.
 ```
+
+Codex should create a baseline revision and direct implementation ask before coding from that baseline.
