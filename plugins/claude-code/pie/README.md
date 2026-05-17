@@ -29,7 +29,8 @@ Restart Claude Code after installation.
 
 Claude Code normally exposes plugin commands with the plugin namespace:
 
-- `/pie:init`: initialize project guidance, `docs/pie/`, and `docs/pie/index.md`.
+- `/pie:init`: initialize project guidance, Project Goal, `docs/pie/`, and `docs/pie/index.md`.
+- `/pie:project`: display or update the Project Goal, guardrails, and shared principles.
 - `/pie:intent <name> <description>`: create a new intent and assess maturity.
 - `/pie:intent`: list intents and active context.
 - `/pie:intent <name>`: switch active intent and summarize durable state.

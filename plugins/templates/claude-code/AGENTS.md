@@ -10,7 +10,9 @@ Agents should:
 - clarify only material ambiguity;
 - default to action with isolation for reversible local choices;
 - draft PIE artifacts rather than asking humans to write them;
-- maintain `docs/pie/index.md` as durable PIE state;
+- maintain `docs/pie/project.md` as project-level context and `docs/pie/index.md` as durable PIE state;
+- treat the Project Goal as the alignment guardrail for intents, not as an intent or delivery artifact;
+- assess new intents against the Project Goal and surface project drift;
 - apply the Convergence Rule automatically when a clarification answer, explicit user decision, or clearly settled conclusion resolves material ambiguity or changes intent;
 - treat spikes as child investigations under a parent intent;
 - use `/pie:distill` for broader synthesis of spike findings, long or branched discovery conversations, accumulated evidence, or explicit checkpoints;
@@ -29,6 +31,7 @@ PIE artifacts live under `docs/pie/`. Spike working code lives under top-level `
 
 ```text
 docs/pie/
+  project.md
   index.md
   <intent>/
     intent.md
@@ -45,10 +48,13 @@ spikes/
   <spike>/
 ```
 
+`docs/pie/project.md` records the Project Goal, guardrails, shared principles, and brownfield system context when relevant. The Project Goal does not enter the Discover -> Baseline -> Delivery lifecycle.
+
 `docs/pie/index.md` is the registry of durable PIE state. It tracks active intent, active spike, intent statuses, baseline revisions, delivery asks, downstream targets, open spikes, blockers, and artifact links.
 
 Use these default filenames:
 
+- `project.md` for project-level context.
 - `intent.md` for the parent intent.
 - `baseline.md` for delivery-ready intent.
 - `baselines/<baseline_id>.md` for immutable baseline revision snapshots.
@@ -67,6 +73,8 @@ Use top-level `spikes/<spike>/` for spike-only code, fixtures, scripts, notes, a
 
 Append missing entries under a short `# PIE` section and preserve existing ignore rules. Spike work should stay out of commits, lint/build pipelines, and published packages unless explicitly promoted.
 
+`/pie:init` must also create `docs/pie/project.md`. For greenfield projects, ask for the high-level Project Goal and material guardrails. For brownfield projects, inspect existing durable context, propose a reconstructed Project Goal and guardrails, and ask the user to confirm or revise before writing it.
+
 Use per-intent folders by default. Keep intent and spike names short, lowercase, and hyphenated.
 
 ## Command Model
@@ -74,6 +82,7 @@ Use per-intent folders by default. Keep intent and spike names short, lowercase,
 Use the PIE plugin commands when available in Claude Code:
 
 - `/pie:init`
+- `/pie:project`
 - `/pie:intent`
 - `/pie:spike`
 - `/pie:distill`
@@ -89,6 +98,10 @@ Start new PIE work with:
 /pie:intent <name> <description>
 ```
 
+Use `/pie:project` to display the current Project Goal, project guardrails, shared principles, and brownfield context if present. End with a light invitation to update project context.
+
+When creating a new intent, load `docs/pie/project.md` and assess alignment with the Project Goal and guardrails. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project. Do not silently let an intent change what the project is for.
+
 Use `/pie:intent` with no arguments to list intents and active context. Use `/pie:intent <name>` to switch active intent. Each parallel intent should have its own folder and index entry.
 
 When the user answers a material clarifying question, update the active intent and index immediately if the answer resolves a tracked ambiguity, creates or confirms a decision, changes current understanding, or affects readiness. Do not require `/pie:distill` for ordinary one-question/one-answer convergence.
@@ -97,7 +110,7 @@ Use `/pie:spike <name>` to create or select a child spike under the active inten
 
 Use `/pie:decision <description>` for manual recording, affirmation, override, or decisions made outside the PIE flow. It should not be required after every distillation.
 
-`/pie:baseline` is optional. `/pie:implement` and `/pie:export <adapter>` should run the readiness check and generate or refresh the Delivery Baseline automatically.
+`/pie:baseline` is optional. `/pie:implement` and `/pie:export <adapter>` should run the readiness check, including project-goal alignment, and generate or refresh the Delivery Baseline automatically.
 
 Delivery commands should create an immutable baseline snapshot and a delivery ask record. Preserve this chain:
 

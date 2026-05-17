@@ -37,7 +37,41 @@ Claude should create or update:
 AGENTS.md
 CLAUDE.md
 docs/pie/
+docs/pie/project.md
 docs/pie/index.md
+```
+
+Because this is a greenfield project, Claude should ask for the high-level Project Goal:
+
+```text
+What is the high-level goal of this project?
+```
+
+The user answers:
+
+```text
+Build an effective research platform for identifying high-quality stock opportunities before major price moves.
+```
+
+Claude may ask a few material project-level clarifying questions, then creates `docs/pie/project.md`:
+
+```md
+# PIE Project Context
+
+## Project Goal
+Build an effective research platform for identifying high-quality stock opportunities before major price moves.
+
+## Project Guardrails
+- Favor empirically testable approaches.
+- Keep research findings separate from delivery-ready artifacts.
+- Ensure future intents remain aligned with the overall research-platform mission.
+
+## Shared Project Principles
+- Prefer strict out-of-sample evaluation where applicable.
+- Preserve interpretability when it materially affects decision-making.
+
+## Active Intents
+- None yet.
 ```
 
 Claude should also enforce spike isolation before any spike code is created:
@@ -56,6 +90,9 @@ A new index starts roughly like this:
 
 ```md
 # PIE Index
+
+## Project Context
+- Project artifact: docs/pie/project.md
 
 ## Active Context
 - Active intent: none
@@ -81,6 +118,7 @@ Claude should:
 - create `docs/pie/stock-screener/intent.md`;
 - register `stock-screener` in `docs/pie/index.md`;
 - set `stock-screener` as the active intent;
+- assess alignment with the Project Goal;
 - assess whether the intent is ready, needs clarification, or needs one or more spikes.
 
 The intent artifact should include lightweight metadata:
@@ -90,6 +128,7 @@ The intent artifact should include lightweight metadata:
 type: intent
 intent_id: PIE-INTENT-STOCK-SCREENER
 name: stock-screener
+project_goal_alignment: aligned
 status: discovering
 created_at: 2026-05-16
 updated_at: 2026-05-16
@@ -106,6 +145,9 @@ Claude may respond:
 ```text
 Intent created: stock-screener
 Initial status: discovering
+
+Project alignment:
+- Aligned. A VCP-centered screener supports the broader research-platform goal by helping identify high-quality stock opportunities before major moves.
 
 Current understanding:
 - Build a stock screener centered on VCP-like setups.
@@ -532,6 +574,7 @@ The clean greenfield command workflow is:
 
 ```text
 /pie:init
+/pie:project
 /pie:intent <name> <description>
 /pie:intent <name>
 /pie:intent

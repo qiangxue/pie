@@ -8,6 +8,7 @@ Commands operate on durable artifacts, not chat memory. Spike working code is ke
 
 ```text
 docs/pie/
+  project.md
   index.md
   <intent>/
     intent.md
@@ -29,7 +30,8 @@ spikes/
 
 | Command | Purpose |
 |---|---|
-| `/pie:init` | Initialize PIE structure and durable state. |
+| `/pie:init` | Initialize PIE structure, Project Goal, and durable state. |
+| `/pie:project` | Display or update project-level goal, guardrails, and shared principles. |
 | `/pie:intent <name> <description>` | Create a new intent and assess its maturity. |
 | `/pie:intent` | List intents and active context. |
 | `/pie:intent <name>` | Switch active intent. |
@@ -50,10 +52,15 @@ Initializes:
 AGENTS.md
 CLAUDE.md
 docs/pie/
+docs/pie/project.md
 docs/pie/index.md
 ```
 
 Existing repository rules should be preserved.
+
+For a greenfield repository, `/pie:init` should ask for the high-level Project Goal, clarify only material project-level ambiguity, and create `docs/pie/project.md`.
+
+For a brownfield repository, `/pie:init` should inspect existing durable context where available, including README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. It should propose a reconstructed Project Goal and guardrails, then ask the user to confirm or revise them before creating `docs/pie/project.md`.
 
 `/pie:init` also enforces spike isolation by updating applicable ignore/config files:
 
@@ -63,6 +70,23 @@ Existing repository rules should be preserved.
 - equivalent tooling excludes for detected lint, test, build, or package-publish systems.
 
 Existing rules and comments must be preserved. Missing PIE entries should be appended under a short `# PIE` section.
+
+## `/pie:project`
+
+Displays the current project-level context from `docs/pie/project.md`.
+
+The agent should show:
+
+- Project Goal;
+- Project Guardrails;
+- Shared Project Principles;
+- Current System Understanding, for brownfield projects;
+- Known Evolution Themes, when present;
+- Open Project-Level Questions, when present.
+
+End with a light invitation to update the Project Goal, guardrails, or shared principles. Do not force an update before continuing normal work.
+
+If `docs/pie/project.md` is missing, recommend `/pie:init` or create it with the same greenfield/brownfield behavior described above.
 
 ## `/pie:intent`
 
@@ -78,13 +102,18 @@ Examples:
 
 When creating a new intent, the agent should:
 
-1. create `docs/pie/<intent>/intent.md`;
-2. register it in `docs/pie/index.md`;
-3. set it as active;
-4. assign a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`;
-5. assess maturity;
-6. ask focused clarification questions when needed;
-7. suggest spikes when empirical evidence is required.
+1. load `docs/pie/project.md`;
+2. assess alignment with the Project Goal and guardrails;
+3. flag possible project drift if the intent stretches or contradicts the Project Goal;
+4. create `docs/pie/<intent>/intent.md`;
+5. register it in `docs/pie/index.md`;
+6. set it as active;
+7. assign a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`;
+8. assess maturity;
+9. ask focused clarification questions when needed;
+10. suggest spikes when empirical evidence is required.
+
+If alignment is unclear, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project. Do not silently let an intent change what the project is for.
 
 Clarification answers should auto-trigger Convergence when they resolve material ambiguity.
 
@@ -153,8 +182,8 @@ Starts direct implementation.
 
 The agent must:
 
-1. load active intent;
-2. run readiness check;
+1. load project context and active intent;
+2. run readiness check, including project-goal alignment;
 3. create or refresh `baseline.md`;
 4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
 5. create a delivery ask record under `docs/pie/<intent>/asks/`;
@@ -180,8 +209,8 @@ These target [Spec Kit](https://github.com/github/spec-kit) and [LID](https://gi
 
 The agent must:
 
-1. load active intent;
-2. run readiness check;
+1. load project context and active intent;
+2. run readiness check, including project-goal alignment;
 3. create or refresh `baseline.md`;
 4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
 5. create a delivery ask record under `docs/pie/<intent>/asks/`;

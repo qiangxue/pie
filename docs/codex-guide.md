@@ -7,6 +7,7 @@ Use PIE in Codex through:
 - `AGENTS.md` project guidance;
 - concise PIE prompt commands;
 - durable files under `docs/pie/`;
+- project-level context in `docs/pie/project.md`;
 - traceability from intent ID to baseline revision to delivery ask;
 - Codex built-in commands such as `/plan`, `/compact`, `/status`, `/review`, and `/plugins` when useful.
 
@@ -33,6 +34,7 @@ In Codex, ask:
 
 ```text
 Use PIE. Initialize durable PIE state in this repository:
+- create or confirm docs/pie/project.md with the Project Goal and guardrails;
 - create docs/pie/index.md if missing;
 - enforce spike isolation in Git, lint, test, and package-publish tooling;
 - preserve existing AGENTS.md guidance;
@@ -46,7 +48,8 @@ Use short, repeatable prompts. For example:
 
 | Prompt | Behavior |
 |---|---|
-| `PIE init` | Initialize durable PIE state in this repo. |
+| `PIE init` | Initialize Project Goal and durable PIE state in this repo. |
+| `PIE project` | Display or update project-level goal, guardrails, and shared principles. |
 | `PIE intent stock-screener: ...` | Create or update an intent. |
 | `PIE list intents` | List intents and active context. |
 | `PIE switch intent stock-screener` | Switch active intent. |
@@ -60,6 +63,10 @@ Use short, repeatable prompts. For example:
 | `PIE baseline` | Preview or refresh the Delivery Baseline without starting delivery. |
 
 The important part is not the prefix. The important part is that Codex follows the durable-state behavior in `AGENTS.md` and updates `docs/pie/`.
+
+`PIE init` should create `docs/pie/project.md`. For greenfield projects, Codex should ask for the high-level Project Goal. For brownfield projects, Codex should inspect durable repo context, propose a reconstructed goal and guardrails, and ask for confirmation or revision.
+
+When creating an intent, Codex should assess it against the Project Goal. If alignment is unclear, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
 
 Delivery prompts should preserve this chain:
 
@@ -129,6 +136,8 @@ Before Codex creates or runs spike code, it should verify the isolation excludes
 ```text
 PIE init
 ```
+
+Codex should create or confirm `docs/pie/project.md` before the first intent.
 
 ```text
 PIE intent stock-screener: Build a local stock screener that ranks high-quality pre-breakout candidates.

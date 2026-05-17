@@ -33,9 +33,10 @@ For direct implementation mode, the agent may apply this behavior automatically 
 7. If an assumption is challenged, update the intent and/or baseline.
 8. If new material ambiguity appears, mark the intent `reopened`.
 9. If new empirical uncertainty appears, recommend or create a spike.
-10. If a downstream framework is in use, identify whether its seed, spec, plan, or design must be regenerated or patched after the PIE update. PIE adapter seeds live under `docs/pie/<intent>/exports/`.
-11. Update `docs/pie/index.md` with feedback lineage and delivery impact.
-12. If urgency forced code ahead of documentation, add an emergency exception note with required follow-up.
+10. If feedback suggests project-level drift, recommend `/pie:project` and ask whether the Project Goal or guardrails should change.
+11. If a downstream framework is in use, identify whether its seed, spec, plan, or design must be regenerated or patched after the PIE update. PIE adapter seeds live under `docs/pie/<intent>/exports/`.
+12. Update `docs/pie/index.md` with feedback lineage and delivery impact.
+13. If urgency forced code ahead of documentation, add an emergency exception note with required follow-up.
 
 ## Feedback Lineage
 

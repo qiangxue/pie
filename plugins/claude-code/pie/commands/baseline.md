@@ -11,6 +11,8 @@ Preview or explicitly generate a Delivery Baseline. This command is optional and
 Before creating a Delivery Baseline, confirm:
 
 - The goal is clear enough to implement.
+- The intent aligns with `docs/pie/project.md` or any project-level drift has been explicitly resolved.
+- Project guardrails and shared principles are reflected where materially relevant.
 - Material decisions have been made or explicitly deferred as non-blocking.
 - Key constraints and non-negotiables are known.
 - Success criteria are understandable.
@@ -48,7 +50,7 @@ Increment `revision` from the previous baseline revision for the intent. `baseli
 Use this content in both the current baseline and revision snapshot:
 
 ```md
-# Delivery Baseline - [Delivery Unit]
+# Delivery Baseline - [Intent Title]
 ## Goal
 ## Context
 ## In-Scope Intent

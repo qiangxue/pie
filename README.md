@@ -48,13 +48,32 @@ PIE treats intent as something that may need to mature before delivery begins.
 The basic loop is:
 
 ```text
-unclear or new intent
+project goal
+-> unclear or new intent
 -> clarify material ambiguity
 -> gather data points through spikes when discussion is not enough
 -> record decisions, rationale, and impact durably
 -> create a Delivery Baseline when ready
 -> implement directly or export downstream
 -> feed back implementation or delivery discoveries that change intent
+```
+
+### Project Goal
+
+The Project Goal is the project-level answer to:
+
+```text
+What is this project fundamentally trying to accomplish?
+```
+
+It is broad, durable, and used as a guardrail for individual intents. It is not an intent, spike, baseline, or delivery artifact.
+
+For a greenfield project, PIE helps define the Project Goal during initialization. For a brownfield project, PIE reconstructs a candidate goal from existing durable context, then asks the user to confirm or revise it.
+
+The Project Goal lives at:
+
+```text
+docs/pie/project.md
 ```
 
 ### Intent
@@ -80,6 +99,8 @@ docs/pie/<intent>/intent.md
 ```
 
 The intent is allowed to evolve. Clarification answers, spike findings, and delivery feedback can all update it.
+
+When a new intent is created, PIE checks whether it aligns with the Project Goal. If the intent appears to drift from what the project is fundamentally for, the agent should ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
 
 ### Spike
 
@@ -159,6 +180,7 @@ PIE keeps durable state in files instead of relying on chat history. PIE records
 
 ```text
 docs/pie/
+  project.md
   index.md
   <intent>/
     intent.md
@@ -191,6 +213,8 @@ Initialize PIE in a project:
 /pie:init
 ```
 
+For a greenfield project, PIE asks for the Project Goal. For a brownfield project, PIE reconstructs a candidate goal and guardrails from existing repo context and asks you to confirm or revise them.
+
 Create your first intent:
 
 ```text
@@ -200,6 +224,7 @@ Create your first intent:
 Common commands:
 
 ```text
+/pie:project
 /pie:spike vcp-scoring
 /pie:distill
 /pie:implement
@@ -210,7 +235,7 @@ Common commands:
 /pie:decision "Defer intraday signals until after the first production version."
 ```
 
-Use `/pie:intent <name> <description>` to create intent, `/pie:intent` to list intents, and `/pie:intent <name>` to switch active intent.
+Use `/pie:project` to view or adjust the Project Goal and guardrails. Use `/pie:intent <name> <description>` to create intent, `/pie:intent` to list intents, and `/pie:intent <name>` to switch active intent.
 
 For command details, see [docs/claude-code-command-reference.md](docs/claude-code-command-reference.md).
 
@@ -224,6 +249,7 @@ Then use concise prompt commands in Codex:
 
 ```text
 PIE init
+PIE project
 PIE intent stock-screener: Build a local stock screener that finds high-quality breakout candidates.
 PIE spike vcp-scoring: compare binary VCP detection with ranked setup scoring.
 PIE distill

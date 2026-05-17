@@ -52,6 +52,8 @@ Use ordinary shell tools for validation. If future changes add generated assets 
 - Put Claude Code command semantics in `docs/claude-code-command-reference.md`.
 - Put Codex prompt workflow guidance in `docs/codex-guide.md` and `plugins/templates/codex/AGENTS.md`.
 - Prefer durable artifact behavior over chat-memory assumptions.
+- Keep `docs/pie/project.md` as project-level context, not an intent or delivery artifact.
+- Assess intents against the Project Goal before delivery.
 - Do not add commands that are not part of the canonical PIE command model unless the Claude Code command reference is updated first.
 - Keep `/pie:baseline` optional; `/pie:implement` and `/pie:export <adapter>` should auto-create or refresh baselines after readiness passes.
 - Keep `/pie:decision` as manual record/affirm/override. Ordinary clarification answers should auto-trigger Convergence.
@@ -63,6 +65,7 @@ The Claude Code plugin currently supports:
 
 ```text
 /pie:init
+/pie:project
 /pie:intent
 /pie:spike
 /pie:distill
@@ -109,9 +112,10 @@ plugins/claude-code/pie/adapters/
 
 An adapter should:
 
-- read from `docs/pie/<intent>/baseline.md`;
+- read from the immutable baseline revision under `docs/pie/<intent>/baselines/`;
 - write under `docs/pie/<intent>/exports/`;
 - update `docs/pie/index.md`;
+- preserve the PIE Origin block with intent ID, baseline ID, and ask ID;
 - produce a downstream seed, not a full downstream workflow;
 - stop and reopen PIE if export reveals delivery-critical missing intent.
 

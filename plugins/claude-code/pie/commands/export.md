@@ -21,8 +21,8 @@ Examples:
 
 ## Process
 
-1. Load the active intent from `docs/pie/index.md`.
-2. Run the Ready for Delivery check.
+1. Load `docs/pie/project.md` and the active intent from `docs/pie/index.md`.
+2. Run the Ready for Delivery check, including project-goal alignment and project guardrails.
 3. Determine whether a current Delivery Baseline exists.
 4. If no current baseline exists or the intent changed since the last handoff, create or refresh `docs/pie/<intent>/baseline.md`.
 5. Create an immutable baseline revision snapshot under `docs/pie/<intent>/baselines/`.

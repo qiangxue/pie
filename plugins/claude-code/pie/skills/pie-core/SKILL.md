@@ -13,16 +13,18 @@ Use Progressive Intent Engineering as an upstream operating policy for software 
 2. Clarify only material ambiguity: product semantics, architecture, boundaries, security, compliance, operability, reliability, cost, performance, scale, external contracts, or material scope.
 3. Default to action with isolation for reversible local choices that do not materially affect intent.
 4. Draft PIE artifacts yourself; the human reviews, corrects, approves, or rejects them.
-5. Maintain `docs/pie/index.md` as durable PIE state. Do not rely on chat history as the source of truth.
-6. Apply the Convergence Rule automatically when a clarification answer, explicit user decision, or clearly settled conclusion resolves material ambiguity or changes intent.
-7. Treat spikes as child investigations under a parent intent.
-8. Use `/pie:distill` for broader synthesis of spike findings, long or branched conversations, accumulated evidence, or explicit checkpoints.
-9. Keep spikes tied to named uncertainties and isolated from production tooling.
-10. During `/pie:init`, enforce spike isolation in repository ignore, lint, test, and package-publish configuration before spike code is created.
-11. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
-12. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
-13. Preserve traceability from intent to baseline revision to delivery ask to downstream target.
-14. Route delivery feedback back to PIE only when implementation changes the intended work.
+5. Maintain `docs/pie/project.md` as durable project-level context and `docs/pie/index.md` as durable PIE state. Do not rely on chat history as the source of truth.
+6. Treat the Project Goal as a guardrail for intents, not as an intent or delivery artifact.
+7. Assess new intents against the Project Goal and flag project drift instead of silently changing what the project is for.
+8. Apply the Convergence Rule automatically when a clarification answer, explicit user decision, or clearly settled conclusion resolves material ambiguity or changes intent.
+9. Treat spikes as child investigations under a parent intent.
+10. Use `/pie:distill` for broader synthesis of spike findings, long or branched conversations, accumulated evidence, or explicit checkpoints.
+11. Keep spikes tied to named uncertainties and isolated from production tooling.
+12. During `/pie:init`, define or reconstruct the Project Goal and enforce spike isolation in repository ignore, lint, test, and package-publish configuration before spike code is created.
+13. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
+14. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
+15. Preserve traceability from intent to baseline revision to delivery ask to downstream target.
+16. Route delivery feedback back to PIE only when implementation changes the intended work.
 
 ## Artifact Defaults
 
@@ -30,6 +32,7 @@ Use per-intent folders and a durable index:
 
 ```text
 docs/pie/
+  project.md
   index.md
   <intent>/
     intent.md
@@ -46,6 +49,12 @@ docs/pie/
 
 Every PIE command must read and update `docs/pie/index.md` when active context, status, baseline state, delivery ask state, downstream target state, or spike state changes.
 
+`docs/pie/project.md` records Project Goal, guardrails, shared principles, and brownfield system context when relevant. It is project-level context and does not enter the Discover -> Baseline -> Delivery lifecycle.
+
+For greenfield projects, `/pie:init` should ask for the high-level Project Goal and only material project-level clarifications before creating `project.md`. For brownfield projects, `/pie:init` should inspect existing durable context, propose a reconstructed Project Goal and guardrails, and ask the user to confirm or revise before writing `project.md`.
+
+Use `/pie:project` to display the current Project Goal, guardrails, shared principles, and any brownfield context. End with a light invitation to update project context.
+
 `/pie:init` must add or verify isolation excludes:
 
 - `.gitignore`: `spikes/`
@@ -59,6 +68,8 @@ Each intent and spike should carry lightweight frontmatter metadata: `type`, `na
 
 Small clear tasks may move quickly to `/pie:implement` or `/pie:export <adapter>`, but the delivery command still creates or refreshes the baseline if needed. Moderate ambiguity usually needs an intent plus decisions. Empirical uncertainty needs one or more spikes.
 
+When creating an intent, load `docs/pie/project.md` and assess whether the intent aligns with the Project Goal and guardrails. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
+
 Use `/pie:intent` with no arguments to list intents and active context. Use `/pie:intent <name>` to switch active intent. Use `/pie:spike` and `/pie:spike <name>` to list or select child spikes.
 
 Clarification answers should auto-trigger Convergence. When the user answers a material clarifying question, immediately update the active intent and index if the answer resolves a tracked ambiguity, creates or confirms a decision, changes current understanding, or affects readiness.
@@ -70,6 +81,8 @@ Clarification answers should auto-trigger Convergence. When the user answers a m
 Create or refresh a Delivery Baseline only when:
 
 - The goal is clear enough to implement.
+- The intent aligns with the Project Goal or project-level drift has been explicitly resolved.
+- Project guardrails and shared principles are reflected where materially relevant.
 - Material decisions have been made or explicitly deferred as non-blocking.
 - Key constraints and non-negotiables are known.
 - Success criteria are understandable.

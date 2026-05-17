@@ -5,6 +5,7 @@
 Use the installed PIE plugin for repeatable workflows:
 
 - `/pie:init`
+- `/pie:project`
 - `/pie:intent`
 - `/pie:spike`
 - `/pie:distill`
@@ -21,4 +22,3 @@ Start new PIE work with an intent name:
 ```text
 /pie:intent <name> <description>
 ```
-

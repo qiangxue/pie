@@ -42,24 +42,32 @@ Example:
 
 ### New Name and Description Supplied
 
-1. Normalize `<name>` as a short lowercase hyphenated intent folder name.
-2. Create `docs/pie/<name>/intent.md`.
-3. Register the intent in `docs/pie/index.md`.
-4. Set it as active intent.
-5. Assign a stable `intent_id` using `PIE-INTENT-<UPPER-HYPHENATED-NAME>`.
-6. Assess whether the intent is ready for delivery, needs clarification, or needs one or more spikes.
-7. Ask focused clarification questions when needed.
-8. When the user answers a material clarifying question, automatically apply the Convergence Rule:
+1. Load `docs/pie/project.md`.
+2. Normalize `<name>` as a short lowercase hyphenated intent folder name.
+3. Assess alignment with the Project Goal and guardrails:
+   - Does this intent support the Project Goal?
+   - Does it stretch or distort the Project Goal?
+   - Does it suggest the Project Goal itself may need to evolve?
+4. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat this work as a separate project.
+5. Create `docs/pie/<name>/intent.md`.
+6. Register the intent in `docs/pie/index.md`.
+7. Set it as active intent.
+8. Assign a stable `intent_id` using `PIE-INTENT-<UPPER-HYPHENATED-NAME>`.
+9. Assess whether the intent is ready for delivery, needs clarification, or needs one or more spikes.
+10. Ask focused clarification questions when needed.
+11. When the user answers a material clarifying question, automatically apply the Convergence Rule:
    - determine whether the answer resolves a tracked ambiguity;
    - record any resulting settled decision;
    - update current understanding;
    - update material unknowns;
    - update readiness status;
    - update `docs/pie/index.md`.
-9. Suggest spikes when empirical evidence is required.
-10. Set or update intent status accordingly.
+12. Suggest spikes when empirical evidence is required.
+13. Set or update intent status accordingly.
 
 The `intent_id` is the durable identity of the work. Do not change it if the intent matures, delivery happens more than once, or feedback reopens discovery.
+
+Do not let a new intent silently change what the project is for. If repeated intents suggest project drift, recommend `/pie:project` to update or split the Project Goal.
 
 ## Intent Metadata
 
@@ -70,6 +78,7 @@ Use lightweight frontmatter:
 type: intent
 intent_id: PIE-INTENT-<UPPER-HYPHENATED-NAME>
 name: <name>
+project_goal_alignment: aligned|unclear|misaligned
 status: discovering
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
@@ -94,6 +103,7 @@ Recommended statuses:
 Return:
 
 - `Intent`: active intent name.
+- `Project Alignment`: aligned, unclear, or misaligned, with a short reason.
 - `Status`: durable status from the intent artifact and index.
 - `Current Understanding`: brief summary.
 - `Material Unknowns`: blocking questions, if any.

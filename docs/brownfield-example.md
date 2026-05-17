@@ -43,7 +43,60 @@ Claude creates or updates:
 AGENTS.md
 CLAUDE.md
 docs/pie/
+docs/pie/project.md
 docs/pie/index.md
+```
+
+Because this is a brownfield repository, Claude should not invent the Project Goal from scratch. It should inspect durable context such as README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. Then it should propose a reconstructed Project Goal and ask the user to confirm or revise it.
+
+Example:
+
+```text
+I found an existing stock screener rather than a blank project.
+
+Proposed Project Goal:
+Provide a local research tool that ranks end-of-day stock candidates for manual review before potential breakout moves.
+
+Candidate guardrails:
+- Preserve ranked candidate semantics.
+- Keep v1 local and file-based unless a later intent changes that.
+- Keep scoring explainable enough for manual review.
+- Avoid alerting behavior that requires hidden state without making that state explicit.
+
+Please confirm or revise this Project Goal and guardrails.
+```
+
+After confirmation, Claude creates `docs/pie/project.md`:
+
+```md
+# PIE Project Context
+
+## Project Goal
+Provide a local research tool that ranks end-of-day stock candidates for manual review before potential breakout moves.
+
+## Current System Understanding
+- The system scores configured tickers from daily OHLCV data.
+- It produces ranked CSV output for manual review.
+- It does not appear to persist previous candidate state.
+
+## Project Guardrails
+- Preserve ranked candidate semantics.
+- Keep scoring explainable enough for manual review.
+- Avoid hidden state transitions.
+
+## Known Evolution Themes
+- Alerting
+- Candidate state persistence
+- Better evaluation of candidate quality
+
+## Project-Level Decisions
+- None yet.
+
+## Open Project-Level Questions
+- None currently blocking.
+
+## Active Intents
+- None yet.
 ```
 
 Claude should also enforce spike isolation before any spike code is created:
@@ -56,7 +109,7 @@ Claude should also enforce spike isolation before any spike code is created:
 
 For other detected tooling, such as Biome, Prettier, Stylelint, test runners, or package publishing, Claude should add equivalent excludes. Existing ignore rules should be preserved.
 
-The index is the durable registry of active intent, active spike, baseline status, blockers, and artifact links.
+The index is the durable registry of project context, active intent, active spike, baseline status, delivery asks, blockers, and artifact links.
 
 ## 2. Start a Brownfield Intent
 
@@ -72,6 +125,16 @@ Claude should create:
 docs/pie/stock-alerts/intent.md
 ```
 
+Before creating it, Claude should assess the new intent against `docs/pie/project.md`:
+
+```text
+Project alignment:
+- Aligned. Alerts support the existing research-tool goal by surfacing important candidate transitions.
+
+Potential project impact:
+- The intent may require explicit candidate state, which the current system does not yet model.
+```
+
 For brownfield work, the intent should explicitly include existing-system impact:
 
 ```md
@@ -79,6 +142,7 @@ For brownfield work, the intent should explicitly include existing-system impact
 type: intent
 intent_id: PIE-INTENT-STOCK-ALERTS
 name: stock-alerts
+project_goal_alignment: aligned
 status: discovering
 created_at: 2026-05-16
 updated_at: 2026-05-16
@@ -463,6 +527,7 @@ The brownfield PIE rhythm is:
 
 ```text
 /pie:init
+/pie:project
 /pie:intent <name> <description>
 -> assess existing-system impact
 -> auto-record clarification decisions

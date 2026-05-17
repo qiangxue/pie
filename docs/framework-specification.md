@@ -16,6 +16,14 @@ If yes, what stable intent should delivery begin from?
 If no, what uncertainty must be resolved first?
 ```
 
+PIE also keeps one project-level context artifact that answers:
+
+```text
+What is this project fundamentally trying to accomplish?
+```
+
+That Project Goal is a guardrail for intents. It is not itself an intent and does not enter the Discover -> Baseline -> Delivery lifecycle.
+
 ## 2. Principles
 
 ### 2.1 Do not pretend unclear intent is ready
@@ -50,9 +58,73 @@ If a decision depends on empirical evidence, run a spike.
 
 PIE produces a Delivery Baseline or downstream seed. Delivery frameworks own specs, plans, tasks, implementation, tests, and code.
 
+### 2.6 Keep project context above intents
+
+The Project Goal is project-level context. Intents must align with it, but PIE should not create recursive intent hierarchies or delivery-unit trees. Large delivery decomposition belongs downstream.
+
 ## 3. Core Objects
 
-### 3.1 Intent
+### 3.1 Project Context
+
+Project Context is the durable project-level artifact that records the Project Goal, guardrails, shared principles, and broad project understanding.
+
+It normally lives at:
+
+```text
+docs/pie/project.md
+```
+
+Project Context answers:
+
+```text
+What is this project fundamentally trying to accomplish?
+```
+
+It is:
+
+- broad;
+- durable;
+- project-level;
+- a guardrail for individual intents.
+
+It is not:
+
+- an intent;
+- a spike;
+- a baseline;
+- a downstream delivery artifact;
+- part of the Discover -> Baseline -> Delivery lifecycle.
+
+Greenfield project context sections:
+
+```md
+# PIE Project Context
+
+## Project Goal
+## Project Guardrails
+## Shared Project Principles
+## Active Intents
+```
+
+Brownfield project context sections:
+
+```md
+# PIE Project Context
+
+## Project Goal
+## Current System Understanding
+## Project Guardrails
+## Known Evolution Themes
+## Project-Level Decisions
+## Open Project-Level Questions
+## Active Intents
+```
+
+For greenfield repositories, `/pie:init` should ask for the high-level project goal and clarify only material project-level ambiguity before writing `project.md`.
+
+For brownfield repositories, `/pie:init` should inspect existing durable context such as README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. It should propose a reconstructed Project Goal and guardrails, then ask the user to confirm or revise them before writing `project.md`.
+
+### 3.2 Intent
 
 An intent is the durable representation of a project direction or deliverable that may still be evolving.
 
@@ -69,6 +141,7 @@ Intent metadata:
 type: intent
 intent_id: PIE-INTENT-<INTENT-SLUG>
 name: <intent>
+project_goal_alignment: aligned|unclear|misaligned
 status: discovering
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
@@ -79,6 +152,14 @@ recommended_next_step: clarify
 ```
 
 `intent_id` is the stable upstream identity for the work. It must not change when the intent matures, when delivery happens in multiple iterations, or when feedback reopens discovery.
+
+Each intent must be assessed against the Project Goal when created or materially changed:
+
+- Does the intent support the Project Goal?
+- Does it stretch, distort, or contradict the Project Goal?
+- Does repeated intent drift suggest the Project Goal itself should evolve?
+
+If alignment is unclear, the agent should ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
 
 Recommended intent statuses:
 
@@ -92,7 +173,7 @@ Recommended intent statuses:
 | `reopened` | Delivery feedback exposed new material ambiguity. |
 | `completed` | Delivery is done and no unresolved feedback remains. |
 
-### 3.2 Spike
+### 3.3 Spike
 
 A spike is a focused empirical investigation created to resolve a named uncertainty within an intent.
 
@@ -138,7 +219,7 @@ Recommended spike statuses:
 | `discarded` | Abandoned or determined not useful. |
 | `promoted` | Findings became formal design or delivery input. |
 
-### 3.3 Decision
+### 3.4 Decision
 
 A decision is a settled intent-level choice.
 
@@ -153,7 +234,7 @@ Decision record shape:
 - **Status:** Accepted, rejected, overridden, or deferred.
 ```
 
-### 3.4 Delivery Baseline
+### 3.5 Delivery Baseline
 
 A Delivery Baseline is the delivery-facing summary of stable intent.
 
@@ -188,7 +269,7 @@ status: current
 Baseline sections:
 
 ```md
-# Delivery Baseline - <Delivery Unit>
+# Delivery Baseline - <Intent Title>
 
 ## Goal
 ## Context
@@ -203,7 +284,7 @@ Baseline sections:
 ## Trace to PIE Discovery
 ```
 
-### 3.5 Preparation Baseline
+### 3.6 Preparation Baseline
 
 A Preparation Baseline is used when an existing system needs structural work before the new intent can be delivered cleanly.
 
@@ -213,7 +294,7 @@ It normally lives at:
 docs/pie/<intent>/preparation-baseline.md
 ```
 
-### 3.6 Delivery Ask
+### 3.7 Delivery Ask
 
 A Delivery Ask is a durable record of a handoff from PIE to direct implementation or a downstream delivery framework.
 
@@ -246,7 +327,7 @@ The ask record answers which intent produced the request, which baseline revisio
 
 If the downstream target ID is not known at export time, the ask may record a proposed or pending target. The ask, index, and export history should be updated when the downstream target becomes known.
 
-### 3.7 Traceability Chain
+### 3.8 Traceability Chain
 
 Every delivery handoff must preserve this chain:
 
@@ -269,6 +350,7 @@ docs/pie/index.md
 
 The index tracks:
 
+- project context artifact;
 - active intent;
 - active spike;
 - intent statuses;
@@ -286,6 +368,7 @@ Recommended durable state layout:
 
 ```text
 docs/pie/
+  project.md
   index.md
   <intent>/
     intent.md
@@ -303,7 +386,29 @@ docs/pie/
 
 ## 5. Workflow
 
-### 5.1 Start or select intent
+### 5.1 Initialize project context
+
+Initialize:
+
+```text
+/pie:init
+```
+
+`/pie:init` creates or updates project guidance, `docs/pie/project.md`, and `docs/pie/index.md`.
+
+For greenfield work, it asks for the high-level Project Goal and any material project guardrails.
+
+For brownfield work, it reconstructs a candidate Project Goal and guardrails from existing repo context, then asks the user to confirm or revise them.
+
+Display or update project context:
+
+```text
+/pie:project
+```
+
+`/pie:project` shows the current Project Goal, guardrails, shared principles, and broad project context, then lightly invites updates.
+
+### 5.2 Start or select intent
 
 Create:
 
@@ -318,7 +423,9 @@ List or switch:
 /pie:intent <name>
 ```
 
-### 5.2 Clarify and converge
+When creating an intent, assess alignment with `docs/pie/project.md`. If the intent appears misaligned, ask whether to reframe the intent, update the Project Goal, or treat the work as separate.
+
+### 5.3 Clarify and converge
 
 When the agent asks a material clarifying question and the user answers, the agent should immediately determine whether the answer:
 
@@ -329,7 +436,7 @@ When the agent asks a material clarifying question and the user answers, the age
 
 If yes, the agent updates the active intent and index automatically.
 
-### 5.3 Spike when evidence is needed
+### 5.4 Spike when evidence is needed
 
 Create or select:
 
@@ -352,7 +459,7 @@ Distillation:
 - updates the parent intent;
 - updates readiness and index state.
 
-### 5.4 Manually record decisions when needed
+### 5.5 Manually record decisions when needed
 
 Use:
 
@@ -362,11 +469,13 @@ Use:
 
 for explicit recording, affirming, rejecting, or overriding decisions. It is not required after every clarification or distillation.
 
-### 5.5 Deliver when ready
+### 5.6 Deliver when ready
 
 Delivery may begin only when:
 
 - the goal is clear enough to implement;
+- the intent aligns with the Project Goal or project-level drift has been explicitly resolved;
+- project guardrails and shared principles are reflected where materially relevant;
 - material decisions are made or explicitly deferred as non-blocking;
 - constraints are known;
 - success criteria are understandable;
@@ -397,7 +506,7 @@ Each delivery command must also:
 
 When exporting the same intent to the same downstream framework again, PIE should default to updating the existing downstream target when one is known. It should still create a new ask record for the new handoff. A new downstream target should be created only when the user requests it, the work is materially independent, or the downstream framework requires it.
 
-### 5.6 Reconcile feedback
+### 5.7 Reconcile feedback
 
 Use:
 
@@ -421,13 +530,18 @@ feedback_source:
 
 This lets PIE identify which intent to reopen, which baseline assumption was challenged, and whether a downstream seed or target must be regenerated or patched.
 
+If feedback suggests repeated or material project-level drift, the agent should surface that explicitly and ask whether to update `docs/pie/project.md` through `/pie:project`.
+
 ## 6. Brownfield Rule
 
 For existing systems, PIE must assess:
 
-- how the new intent affects the current project intent;
+- how the new intent aligns with the Project Goal;
+- whether the intent changes the system mission, architecture, or boundaries;
 - whether architecture, data model, APIs, state model, tests, or operations are ready;
 - whether preparation should be separated from the new feature.
+
+If the intent aligns and does not materially change mission or boundaries, use the normal intent flow. If it aligns but materially changes architecture, mission, or boundaries, capture an Intent Delta Brief in the intent. If alignment is unclear or negative, ask whether the Project Goal should evolve, the intent should be reframed, or the work belongs elsewhere.
 
 If preparation is needed, create a Preparation Baseline before or alongside the new-intent Delivery Baseline.
 
