@@ -26,11 +26,21 @@ If no, what evidence, decision, or feedback loop is missing?
 
 PIE is intentionally small. It does not replace specs, plans, tests, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or implementation. It prepares better input for them.
 
-## What Makes PIE Different
+Use PIE when:
+
+- the user knows the problem, but the exact product behavior or scope is still fuzzy;
+- a decision needs evidence from a spike, code inspection, prototype, benchmark, or domain check;
+- a brownfield change may alter what the existing system is for;
+- multiple intents are moving in parallel and need durable status;
+- implementation or downstream planning may reveal feedback that should update the original intent.
+
+For a tiny, obvious code change, PIE should stay out of the way.
+
+## Why PIE Exists
 
 PIE is not just another intent-driven development wrapper. It assumes intent is often incomplete, unstable, or wrong at first.
 
-PIE gives agents a way to:
+PIE gives agents a small amount of durable structure before they commit to code:
 
 - separate vague intent from delivery-ready intent;
 - ask only questions that materially change the product, architecture, risk, or delivery path;
@@ -56,6 +66,53 @@ project goal
 -> create a Delivery Baseline when ready
 -> implement directly or export downstream
 -> feed back implementation or delivery discoveries that change intent
+```
+
+Conceptually, PIE keeps project context above intent work, and keeps delivery details downstream:
+
+```mermaid
+flowchart TD
+  Project["Project Goal<br/>What this project is fundamentally for"]
+  Intent["Intent<br/>Specific outcome to clarify and deliver"]
+  Spike["Spike<br/>Evidence for one uncertainty"]
+  Decision["Decision<br/>Settled choice with rationale"]
+  Baseline["Delivery Baseline<br/>Stable handoff snapshot"]
+  Ask["Delivery Ask<br/>Traceable handoff record"]
+  Delivery["Direct implementation<br/>or downstream framework"]
+  Feedback["Feedback<br/>Intent-changing learning"]
+
+  Project --> Intent
+  Intent --> Spike
+  Spike --> Decision
+  Intent --> Decision
+  Decision --> Baseline
+  Baseline --> Ask
+  Ask --> Delivery
+  Delivery --> Feedback
+  Feedback --> Intent
+```
+
+A typical PIE workflow looks like this:
+
+```mermaid
+flowchart TD
+  Init["/pie:init<br/>Create project context"]
+  ProjectCmd["/pie:project<br/>Review or adjust project goal"]
+  IntentCmd["/pie:intent<br/>Create or select intent"]
+  Assess{"Ready for delivery?"}
+  Clarify["Clarify material ambiguity"]
+  NeedSpike{"Need evidence?"}
+  SpikeCmd["/pie:spike<br/>Run focused investigation"]
+  Distill["/pie:distill<br/>Fold learning into intent"]
+  Deliver["/pie:implement<br/>or /pie:export"]
+  FeedbackCmd["/pie:feedback<br/>Only when delivery changes intent"]
+
+  Init --> ProjectCmd --> IntentCmd --> Assess
+  Assess -- "No" --> Clarify --> NeedSpike
+  NeedSpike -- "Yes" --> SpikeCmd --> Distill --> Assess
+  NeedSpike -- "No" --> Assess
+  Assess -- "Yes" --> Deliver --> FeedbackCmd
+  FeedbackCmd --> Assess
 ```
 
 ### Project Goal
@@ -174,7 +231,7 @@ Examples:
 
 In direct implementation, the agent may apply feedback automatically. In downstream delivery, use explicit feedback so PIE can reconcile the discovery before the spec, plan, or design continues.
 
-## Durable State
+## What PIE Writes
 
 PIE keeps durable state in files instead of relying on chat history. PIE records live under `docs/pie/`, while spike working code lives under top-level `spikes/`:
 
