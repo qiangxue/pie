@@ -1,13 +1,6 @@
-# Brownfield PIE Example: Adding Alerts to an Existing Stock Screener
+# Brownfield Example: Adding Alerts
 
-This example shows how to use Progressive Intent Engineering (PIE) in an existing codebase. The project already has a working stock screener, and the user wants to add a new capability whose fit is not yet clear.
-
-The key brownfield difference is that PIE must assess both:
-
-- what the new intent means;
-- whether the existing system is structurally ready to absorb it.
-
-## Scenario
+This example shows how PIE handles a change to an existing system.
 
 The repository already contains a local stock screener:
 
@@ -27,46 +20,41 @@ The user says:
 
 > Add alerts so I know when a stock becomes a strong candidate.
 
-This sounds simple, but it is not delivery-ready. "Alert", "strong candidate", timing, state, notification channel, duplicate handling, persistence, and evaluation semantics are all material questions. The existing screener may also lack the state model needed for alerting.
+This sounds small, but it is not delivery-ready. "Alert", "strong candidate", timing, state, notification channel, duplicate handling, and persistence all affect the design. The current system may not even have the state model alerting needs.
 
 ## 1. Initialize PIE
-
-If PIE has not been initialized:
 
 ```text
 /pie:init
 ```
 
-Claude creates or updates:
-
-```text
-AGENTS.md
-CLAUDE.md
-docs/pie/
-docs/pie/project.md
-docs/pie/index.md
-```
-
-Because this is a brownfield repository, Claude should not invent the Project Goal from scratch. It should inspect durable context such as README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. Then it should propose a reconstructed Project Goal and ask the user to confirm or revise it.
+For brownfield work, Claude should not invent the Project Goal. It should inspect durable context such as README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance.
 
 Example:
 
 ```text
-I found an existing stock screener rather than a blank project.
+I found an existing stock screener.
 
 Proposed Project Goal:
 Provide a local research tool that ranks end-of-day stock candidates for manual review before potential breakout moves.
 
 Candidate guardrails:
 - Preserve ranked candidate semantics.
-- Keep v1 local and file-based unless a later intent changes that.
 - Keep scoring explainable enough for manual review.
-- Avoid alerting behavior that requires hidden state without making that state explicit.
+- Avoid hidden state transitions.
+- Keep v1 local and file-based unless a later intent changes that.
 
 Please confirm or revise this Project Goal and guardrails.
 ```
 
-After confirmation, Claude creates `docs/pie/project.md`:
+After confirmation, Claude creates:
+
+```text
+docs/pie/project.md
+docs/pie/index.md
+```
+
+`docs/pie/project.md` might contain:
 
 ```md
 # PIE Project Context
@@ -83,183 +71,97 @@ Provide a local research tool that ranks end-of-day stock candidates for manual 
 - Preserve ranked candidate semantics.
 - Keep scoring explainable enough for manual review.
 - Avoid hidden state transitions.
-
-## Known Evolution Themes
-- Alerting
-- Candidate state persistence
-- Better evaluation of candidate quality
-
-## Project-Level Decisions
-- None yet.
-
-## Open Project-Level Questions
-- None currently blocking.
-
-## Active Intents
-- None yet.
 ```
 
-Claude should also enforce spike isolation before any spike code is created:
+`/pie:init` also enforces spike isolation by excluding `spikes/` from Git and excluding both `spikes/` and `docs/pie/` from lint, test, build, and package-publish inputs when those tools are present. `docs/pie/` remains versioned durable state.
 
-```text
-.gitignore       # add spikes/
-.eslintignore    # add spikes/ and docs/pie/ when ESLint ignore files are used
-.npmignore       # add spikes/ and docs/pie/ for npm packages
-```
-
-For other detected tooling, such as Biome, Prettier, Stylelint, test runners, or package publishing, Claude should add equivalent excludes. Existing ignore rules should be preserved.
-
-The index is the durable registry of project context, active intent, active spike, baseline status, delivery asks, blockers, and artifact links.
-
-## 2. Start a Brownfield Intent
-
-Create a named intent:
+## 2. Create The Brownfield Intent
 
 ```text
 /pie:intent stock-alerts "Add alerts when a stock becomes a strong screener candidate."
 ```
 
-Claude should create:
+Claude should assess alignment with the Project Goal:
+
+```text
+Project alignment:
+- Aligned. Alerts support the research-tool goal by surfacing important candidate transitions.
+
+Potential project impact:
+- The current system does not appear to persist candidate state, so alerting may require preparation.
+```
+
+The intent is created at:
 
 ```text
 docs/pie/stock-alerts/intent.md
 ```
 
-Before creating it, Claude should assess the new intent against `docs/pie/project.md`:
+with metadata such as:
 
-```text
-Project alignment:
-- Aligned. Alerts support the existing research-tool goal by surfacing important candidate transitions.
-
-Potential project impact:
-- The intent may require explicit candidate state, which the current system does not yet model.
-```
-
-For brownfield work, the intent should explicitly include existing-system impact:
-
-```md
----
-type: intent
+```yaml
 intent_id: PIE-INTENT-STOCK-ALERTS
-name: stock-alerts
 project_goal_alignment: aligned
 status: discovering
-created_at: 2026-05-16
-updated_at: 2026-05-16
-active: true
-delivery_baseline: absent
-recommended_next_step: clarify
----
-
-# Intent Brief - Stock Alerts
-
-## Existing Project Intent
-The existing project screens a configured ticker list and produces ranked end-of-day candidates for manual review.
-
-## New Intent Signal
-Add alerts when a stock becomes a strong screener candidate.
-
-## Potential Impact on the Existing System
-- Scoring semantics
-- Candidate state over time
-- Output model
-- Persistence
-- Scheduling
-- Notification delivery
-- Duplicate alert suppression
-- Test coverage
 ```
 
-Claude also registers the intent in:
-
-```text
-docs/pie/index.md
-```
-
-## 3. Assess Intent Impact
-
-Claude should inspect the existing project before proposing implementation. It should identify where the new intent could affect current purpose and architecture.
+Claude should inspect the existing code before proposing implementation.
 
 Example assessment:
 
 ```text
-Intent created: stock-alerts
-Initial status: needs_clarification
-
-Existing system:
-- Computes ranked candidates from daily OHLCV data.
-- Writes CSV output for manual review.
-- Does not appear to persist prior screener state.
-- Does not currently model candidate transitions over time.
-
 Material unknowns:
-1. What should trigger an alert: score threshold, rank entry, score improvement, or breakout event?
-2. Should alerts be one-time, daily repeated, or state-transition based?
+1. What should trigger an alert: threshold, first entry into a top tier, score improvement, or breakout?
+2. Should alerts repeat daily or only fire on state transition?
 3. What notification channel is required for v1?
 4. Does the system need persistence before alerting can work correctly?
 
 Recommended next step:
-- Clarify alert semantics and run an integration spike on candidate state persistence.
+- Clarify alert semantics and run an integration spike on candidate state.
 ```
 
-This is the brownfield PIE move: Claude does not just add a notification call. It checks whether the existing system can represent the new behavior coherently.
+## 3. Clarify And Converge
 
-## 4. Clarify and Auto-Record Settled Decisions
-
-Claude asks material clarification questions:
+Claude asks a material question:
 
 ```text
-Decision needed: Alert trigger semantics
-
-This affects scoring, state tracking, duplicate suppression, and tests.
+Decision needed: alert trigger semantics
 
 Options:
 A. Alert whenever score is above a threshold.
-B. Alert when a ticker first crosses into the top candidate tier.
+B. Alert when a ticker first enters the top candidate tier.
 C. Alert only on confirmed breakout.
 
-Recommendation: B.
-
-Reason: It matches the screener's current ranked-candidate purpose and avoids noisy repeated threshold alerts.
+Recommendation: B, because it matches ranked-candidate semantics and avoids repeated threshold noise.
 ```
 
-The user answers:
+User:
 
-> Use B. For v1, just write alerts to a local alerts CSV. Do not send email or push notifications yet.
+> Use B. For v1, write alerts to a local alerts CSV. Do not send email or push notifications yet.
 
-Claude should automatically apply the Convergence Rule. It updates the active intent without requiring `/pie:distill`:
+Claude should update the intent immediately:
 
 ```md
-## Decisions Made
-
 ### Decision: Alert on first entry into the top candidate tier
-- **Decision:** An alert should be created when a ticker first crosses into the top candidate tier.
-- **Rationale:** This matches the current ranked-candidate screener and avoids repeated threshold noise.
-- **Source:** Clarification response from the user.
+- **Decision:** Create an alert when a ticker first crosses into the top candidate tier.
+- **Rationale:** This matches the ranked-candidate purpose and avoids repeated threshold alerts.
+- **Source:** User clarification.
 - **Impact:** The system needs candidate state across runs and duplicate suppression.
 - **Status:** Accepted.
 
 ### Decision: Use local CSV alerts for v1
-- **Decision:** Version 1 will write alerts to a local CSV.
+- **Decision:** Version 1 writes alerts to a local CSV.
 - **Rationale:** This keeps delivery local and avoids notification-channel complexity.
-- **Source:** Clarification response from the user.
+- **Source:** User clarification.
 - **Impact:** Email, SMS, push, and broker integrations are out of scope.
 - **Status:** Accepted.
 ```
 
-It also updates material unknowns:
+No `/pie:distill` is needed for this single clear clarification answer.
 
-```md
-## Material Unknowns
-- Removed: Which notification channel is required for v1.
-- Remaining: Whether the current code has a clean place to persist candidate state.
-```
+## 4. Run A Brownfield Spike
 
-## 5. Create an Integration Spike
-
-The key remaining uncertainty is not product meaning. It is fit with the existing system.
-
-Create a spike:
+The remaining uncertainty is system fit:
 
 ```text
 /pie:spike candidate-state
@@ -269,22 +171,12 @@ Claude creates:
 
 ```text
 docs/pie/stock-alerts/spikes/candidate-state/spike.md
+spikes/candidate-state/
 ```
 
-Example spike:
+The spike asks:
 
 ```md
----
-type: spike
-name: candidate-state
-parent_intent: stock-alerts
-status: active
-created_at: 2026-05-16
-updated_at: 2026-05-16
-decision_target: "Can the current screener support transition-based alerts without structural preparation?"
-distilled_into_parent: false
----
-
 # Spike - Candidate State
 
 ## Question
@@ -293,21 +185,13 @@ Can the current screener support alerts when a ticker first enters the top candi
 ## Hypothesis
 The current CSV-only output path is insufficient because alerting needs persisted previous candidate state.
 
-## Method
-Inspect scoring, CLI, and output flow. Prototype a minimal state-store boundary in scratch code or a spike branch.
-
-## Evaluation
-Determine whether alerting can be implemented directly or requires prerequisite preparation.
-
 ## Decision Impact
-Determines whether to create a Preparation Baseline before the alert feature.
+Determines whether alerting can be implemented directly or needs prerequisite preparation.
 ```
 
-This spike should stay isolated. If Claude writes exploratory code, it should keep it under `spikes/candidate-state/` or a disposable branch unless the user explicitly promotes it. Before writing spike code, Claude should verify that `/pie:init` excluded `spikes/` from Git tracking and excluded `spikes/` and `docs/pie/` from applicable lint, test, build, and package-publish tooling. If those excludes are missing, Claude should add them before creating or running spike code.
+If Claude writes exploratory code, it stays in `spikes/candidate-state/`. If the spike must touch real project files, Claude records the paths and disposition in `spike.md`.
 
-## 6. Distill the Spike
-
-After the spike, run:
+## 5. Distill The Spike
 
 ```text
 /pie:distill
@@ -315,21 +199,13 @@ After the spike, run:
 
 Suppose Claude finds:
 
-- the current scorer returns one run's ranked rows only;
-- no durable state exists for prior candidate tiers;
-- the CLI and output writer are tightly coupled;
+- the scorer returns one run's rows only;
+- no durable prior-state model exists;
 - adding alerts directly would mix state tracking into CSV output.
 
-Claude should update the spike and parent intent:
+The distillation records:
 
 ```text
-Spike distilled: candidate-state
-
-Key findings:
-- Transition-based alerts require persisted previous candidate state.
-- The current output module is not a clean place to own alert state.
-- Direct feature implementation would likely couple alerting to CSV output.
-
 Recorded decision:
 - Add a small candidate-state store boundary before implementing alerts.
 
@@ -337,174 +213,39 @@ Intent status:
 - stock-alerts: needs_spike -> ready_for_delivery for preparation work
 ```
 
-The parent intent now has a prerequisite preparation need.
+This is the brownfield move: PIE separates "make the system ready" from "deliver the new behavior" when that reduces risk.
 
-## 7. Create a Preparation Baseline
+## 6. Deliver Preparation
 
-Preview or generate the preparation baseline:
-
-```text
-/pie:baseline
-```
-
-Claude should create:
-
-```text
-docs/pie/stock-alerts/preparation-baseline.md
-```
-
-Example:
-
-```md
-# Preparation Baseline - Candidate State Store
-
-## Purpose
-Prepare the existing screener to support transition-based alerts by adding a small candidate-state boundary.
-
-## Current System Constraint
-The current screener produces ranked CSV output for a single run and does not persist prior candidate tier state.
-
-## Preparation Scope
-- Add a local state-store abstraction for previous candidate tier membership.
-- Keep storage local and simple for v1.
-- Add tests for detecting first entry into the top candidate tier.
-- Keep notification delivery out of this preparation step.
-
-## Out of Scope
-- Email, push, SMS, or broker notifications.
-- Full alert feature implementation.
-- Intraday alerting.
-
-## Success Criteria
-- The screener can load prior candidate state.
-- The screener can save current candidate state.
-- Tests can verify first-entry detection independent of CSV output.
-
-## Sequencing
-Must be completed first.
-
-## Trace to Intent
-Identified by `docs/pie/stock-alerts/spikes/candidate-state/spike.md`.
-```
-
-Preparation is separate from the new alert feature because it makes the system ready to absorb the new intent cleanly.
-
-## 8A. Implement Preparation Directly
-
-If the preparation is small and clear:
+If preparation is small and clear:
 
 ```text
 /pie:implement
 ```
 
-Claude should:
-
-1. load the active intent;
-2. run the readiness check for preparation work;
-3. create or refresh the baseline if needed;
-4. create an immutable baseline snapshot;
-5. create a delivery ask record, for example `docs/pie/stock-alerts/asks/PIE-ASK-STOCK-ALERTS-DIRECT-001.md`;
-6. mark the intent `in_delivery`;
-7. implement the candidate-state store from the preparation baseline.
-
-During direct implementation, Claude may automatically apply feedback behavior if it discovers that preparation is materially different than expected.
-
-## 8B. Export Preparation to [Spec Kit](https://github.com/github/spec-kit) or [LID](https://github.com/jszmajda/lid)
-
 If the team wants a downstream workflow:
 
 ```text
 /pie:export speckit
-```
-
-or:
-
-```text
 /pie:export lid
 ```
 
-Claude writes:
-
-```text
-docs/pie/stock-alerts/exports/speckit-seed.md
-docs/pie/stock-alerts/exports/lid-seed.md
-```
-
-Each export also creates:
+PIE creates a baseline revision and delivery ask, for example:
 
 ```text
 docs/pie/stock-alerts/baselines/PIE-BASELINE-STOCK-ALERTS-R1.md
 docs/pie/stock-alerts/asks/PIE-ASK-STOCK-ALERTS-SPECKIT-001.md
 ```
 
-The downstream seed should include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.
+After preparation is complete, Claude updates PIE state and returns to the alert intent for feature delivery.
 
-Use [Spec Kit](https://github.com/github/spec-kit) when the team wants a spec -> plan -> tasks -> implementation path.
+## 7. Feed Back Downstream Learning
 
-Use [LID](https://github.com/jszmajda/lid) when the team wants durable HLD/LLD/EARS/test/code traceability for the state-store boundary.
-
-## 9. Return to the Alert Feature
-
-After preparation is complete, Claude should update PIE state:
-
-```md
-## Delivery Feedback, if any
-- Candidate-state preparation was completed and provides a clean boundary for transition-based alerting.
-```
-
-Then the original alert intent can proceed to delivery:
-
-```text
-/pie:intent stock-alerts
-```
-
-Claude summarizes:
-
-```text
-Active intent switched to stock-alerts.
-
-Status:
-- ready_for_delivery
-
-Preparation:
-- Candidate state store completed.
-
-Delivery Baseline:
-- Not yet created for alert feature delivery.
-
-Recommended next step:
-- /pie:implement or /pie:export speckit
-```
-
-At that point `/pie:implement` or `/pie:export <adapter>` creates or refreshes:
-
-```text
-docs/pie/stock-alerts/baseline.md
-```
-
-for the actual alert feature.
-
-If this is a revised delivery after preparation feedback, PIE creates the next baseline revision and a new ask record while keeping the same stable intent ID:
-
-```text
-PIE-INTENT-STOCK-ALERTS
-  -> PIE-BASELINE-STOCK-ALERTS-R2
-    -> PIE-ASK-STOCK-ALERTS-SPECKIT-002
-```
-
-## 10. Feedback Loop
-
-Suppose downstream [Spec Kit](https://github.com/github/spec-kit) planning discovers:
+Suppose [Spec Kit](https://github.com/github/spec-kit) planning discovers:
 
 > The alert trigger cannot be specified without defining whether candidate tier is absolute score-based or percentile-based.
 
-Because this discovery happened in downstream delivery, use explicit feedback:
-
-```text
-/pie:feedback "Spec Kit planning showed that candidate tier must be defined as absolute score-based or percentile-based before alert trigger semantics are stable."
-```
-
-If the exact ask is known, include it:
+Use feedback:
 
 ```text
 /pie:feedback "PIE-ASK-STOCK-ALERTS-SPECKIT-002 showed that candidate tier must be defined as absolute score-based or percentile-based before alert trigger semantics are stable."
@@ -515,30 +256,23 @@ Claude should:
 - classify it as intent-relevant;
 - reopen `stock-alerts` if needed;
 - add a material unknown;
-- recommend a clarification or spike;
+- recommend clarification or a spike;
 - mark the current baseline as needing revision;
-- note that the [Spec Kit](https://github.com/github/spec-kit) seed/spec must be patched after PIE is updated.
+- note that the downstream seed or spec must be patched after PIE is updated.
 
-For direct implementation, Claude may apply the same feedback behavior automatically when it discovers the issue itself.
+Routine implementation details should stay out of PIE.
 
-## 11. Brownfield Workflow Summary
-
-The brownfield PIE rhythm is:
+## Brownfield Rhythm
 
 ```text
 /pie:init
 /pie:project
 /pie:intent <name> <description>
--> assess existing-system impact
+-> assess existing-system fit
 -> auto-record clarification decisions
--> create integration spikes when fit is uncertain
 /pie:spike <name>
 /pie:distill
 -> create preparation baseline if needed
-/pie:implement or /pie:export <adapter> for preparation
--> return to the original feature intent
-/pie:implement or /pie:export <adapter> for feature delivery
-/pie:feedback <description> when downstream delivery changes intent
+/pie:implement or /pie:export <adapter>
+/pie:feedback <description> when delivery changes intent
 ```
-
-The important distinction is that brownfield PIE separates "make the existing system ready" from "deliver the new intent" when that separation reduces risk or preserves architectural clarity.

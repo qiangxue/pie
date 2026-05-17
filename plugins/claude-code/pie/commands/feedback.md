@@ -60,5 +60,5 @@ Return:
 - `Feedback Classification`.
 - `Feedback Source`: ask ID, baseline ID, target framework, and downstream target when known.
 - `Artifact Updates`, if any.
-- `Delivery Impact`: continue, revise baseline, regenerate downstream seed/spec, reopen Discover, or create preparation work.
+- `Delivery Impact`: continue, revise baseline, regenerate downstream seed/spec, reopen discovery, or create preparation work.
 - `Recommended Next Step`.

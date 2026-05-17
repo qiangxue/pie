@@ -1,101 +1,93 @@
 # PIE Framework Specification
 
-This document is the definitive framework specification for Progressive Intent Engineering (PIE). For an adoption-oriented overview, read the [README](../README.md).
+This is the definitive specification for Progressive Intent Engineering (PIE). For an adoption-oriented overview, read the [README](../README.md).
 
 ## 1. Purpose
 
-PIE is a lightweight human-agent workflow for turning uncertain software intent into delivery-ready intent.
+PIE is a lightweight human-agent workflow for maturing unclear software intent until delivery can proceed without inventing meaning.
 
-PIE is upstream of delivery. It does not replace implementation plans, specs, tests, design docs, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or any organization-specific delivery process. It prepares better input for them.
+PIE is upstream of implementation and delivery frameworks. It prepares better input for code, specs, plans, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or a team's normal delivery process.
 
 PIE answers:
 
 ```text
-Is this work ready to deliver?
-If yes, what stable intent should delivery begin from?
-If no, what uncertainty must be resolved first?
+Is this ready to deliver?
+If yes, what stable baseline should delivery use?
+If no, what question, decision, evidence, or feedback is missing?
 ```
-
-PIE also keeps one project-level context artifact that answers:
-
-```text
-What is this project fundamentally trying to accomplish?
-```
-
-That Project Goal is a guardrail for intents. It is not itself an intent and does not enter the Discover -> Baseline -> Delivery lifecycle.
 
 ## 2. Principles
 
-### 2.1 Do not pretend unclear intent is ready
+1. **Do not pretend unclear intent is ready.** If product meaning, scope, architecture, risk, success criteria, or delivery path is materially unclear, stay in discovery.
+2. **Clarify only material ambiguity.** Ask when the answer changes product semantics, system boundaries, data model, security, reliability, cost, scale, external contracts, or material scope.
+3. **Use evidence when opinion is not enough.** Run a spike when a decision depends on a prototype, code inspection, benchmark, integration check, or domain experiment.
+4. **Record learning durably.** Chat is working memory. PIE artifacts are durable memory.
+5. **Keep delivery downstream.** PIE does not own task breakdown, implementation plans, or downstream framework internals.
+6. **Keep project context above intents.** The Project Goal guides intents but is not an intent and does not enter the discovery -> baseline -> delivery lifecycle.
+7. **Feed back only intent-changing learning.** Routine implementation details stay in delivery. Findings that change intent return to PIE.
 
-If the goal, product semantics, architecture, data model, success criteria, risk, or delivery path is materially unclear, enter Discover instead of implementation.
+## 3. Core Model
 
-### 2.2 Clarify only material ambiguity
+```text
+Project Goal
+  -> Intent
+    -> Spike
+    -> Decision
+    -> Delivery Baseline
+      -> Delivery Ask
+        -> Direct implementation or downstream framework
+          -> Feedback, when intent changes
+```
 
-Ask questions when the answer changes:
+PIE should not create recursive intent hierarchies or delivery-unit trees. Large work can be scoped in a baseline, deferred out of scope, or split into peer intents when the goals are genuinely distinct. Delivery decomposition belongs downstream.
 
-- product semantics;
-- architecture or system boundaries;
-- security, privacy, or compliance;
-- operability or reliability;
-- cost, performance, or scale;
-- external contracts;
-- material scope.
+## 4. Durable State
 
-For local, reversible decisions, the agent should make a reasonable choice and proceed.
+PIE state lives under `docs/pie/`. Spike working code lives outside `docs/`.
 
-### 2.3 Preserve learning durably
+```text
+docs/pie/
+  project.md
+  index.md
+  <intent>/
+    intent.md
+    baseline.md
+    baselines/
+      <baseline_id>.md
+    asks/
+      <ask_id>.md
+    exports/
+    preparation-baseline.md
+    spikes/
+      <spike>/
+        spike.md
+spikes/
+  <spike>/
+```
 
-Chat history is working memory. PIE artifacts are durable memory.
+`docs/pie/index.md` tracks active context, intent statuses, baseline revisions, delivery asks, downstream targets, child spikes, blockers, and artifact links.
 
-Material decisions, findings, spikes, baselines, and feedback must be captured in files.
+Any command that changes project context, active context, status, readiness, baseline state, delivery ask state, downstream target state, or spike state must update durable artifacts and the index.
 
-### 2.4 Use evidence when discussion is not enough
+## 5. Objects
 
-If a decision depends on empirical evidence, run a spike.
+### Project Context
 
-### 2.5 Keep delivery downstream
-
-PIE produces a Delivery Baseline or downstream seed. Delivery frameworks own specs, plans, tasks, implementation, tests, and code.
-
-### 2.6 Keep project context above intents
-
-The Project Goal is project-level context. Intents must align with it, but PIE should not create recursive intent hierarchies or delivery-unit trees. Large delivery decomposition belongs downstream.
-
-## 3. Core Objects
-
-### 3.1 Project Context
-
-Project Context is the durable project-level artifact that records the Project Goal, guardrails, shared principles, and broad project understanding.
-
-It normally lives at:
+Location:
 
 ```text
 docs/pie/project.md
 ```
 
-Project Context answers:
+Purpose:
 
-```text
-What is this project fundamentally trying to accomplish?
-```
+- state what the project is fundamentally trying to accomplish;
+- provide guardrails for future intents;
+- preserve shared principles and brownfield system context where useful.
 
-It is:
+It is not an intent, spike, baseline, delivery ask, or downstream delivery artifact.
 
-- broad;
-- durable;
-- project-level;
-- a guardrail for individual intents.
-
-It is not:
-
-- an intent;
-- a spike;
-- a baseline;
-- a downstream delivery artifact;
-- part of the Discover -> Baseline -> Delivery lifecycle.
-
-Greenfield project context sections:
+Greenfield shape:
 
 ```md
 # PIE Project Context
@@ -106,7 +98,7 @@ Greenfield project context sections:
 ## Active Intents
 ```
 
-Brownfield project context sections:
+Brownfield shape:
 
 ```md
 # PIE Project Context
@@ -120,21 +112,20 @@ Brownfield project context sections:
 ## Active Intents
 ```
 
-For greenfield repositories, `/pie:init` should ask for the high-level project goal and clarify only material project-level ambiguity before writing `project.md`.
+### Intent
 
-For brownfield repositories, `/pie:init` should inspect existing durable context such as README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. It should propose a reconstructed Project Goal and guardrails, then ask the user to confirm or revise them before writing `project.md`.
-
-### 3.2 Intent
-
-An intent is the durable representation of a project direction or deliverable that may still be evolving.
-
-An intent normally lives at:
+Location:
 
 ```text
 docs/pie/<intent>/intent.md
 ```
 
-Intent metadata:
+Purpose:
+
+- capture one specific outcome to clarify and eventually deliver;
+- track current understanding, unknowns, evidence, decisions, readiness, and feedback.
+
+Metadata:
 
 ```yaml
 ---
@@ -146,61 +137,44 @@ status: discovering
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
 active: true
-delivery_baseline: absent
-recommended_next_step: clarify
+delivery_baseline: absent|current|stale
+recommended_next_step: clarify|spike|distill|implement|export|feedback
 ---
 ```
 
-`intent_id` is the stable upstream identity for the work. It must not change when the intent matures, when delivery happens in multiple iterations, or when feedback reopens discovery.
+`intent_id` is the stable upstream identity of the work. It must not change when the intent matures, delivery repeats, or feedback reopens discovery.
 
-Each intent must be assessed against the Project Goal when created or materially changed:
-
-- Does the intent support the Project Goal?
-- Does it stretch, distort, or contradict the Project Goal?
-- Does repeated intent drift suggest the Project Goal itself should evolve?
-
-If alignment is unclear, the agent should ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
-
-Recommended intent statuses:
+Intent statuses:
 
 | Status | Meaning |
 |---|---|
 | `discovering` | Material ambiguity remains. |
-| `needs_clarification` | Waiting for human answers to important questions. |
-| `needs_spike` | Empirical uncertainty should be resolved. |
-| `ready_for_delivery` | No blocking ambiguity remains. |
-| `in_delivery` | `/pie:implement` or `/pie:export` has started delivery. |
-| `reopened` | Delivery feedback exposed new material ambiguity. |
-| `completed` | Delivery is done and no unresolved feedback remains. |
+| `needs_clarification` | Human input is needed. |
+| `needs_spike` | Evidence is needed. |
+| `ready_for_delivery` | The readiness gate passed. |
+| `in_delivery` | Direct implementation or export has started. |
+| `reopened` | Feedback exposed new material ambiguity. |
+| `completed` | Delivery is complete and no unresolved feedback remains. |
 
-### 3.3 Spike
+### Spike
 
-A spike is a focused empirical investigation created to resolve a named uncertainty within an intent.
-
-It normally lives at:
+Location:
 
 ```text
 docs/pie/<intent>/spikes/<spike>/spike.md
-```
-
-Spike-only code, fixtures, notes, or scripts should live outside `docs/` under:
-
-```text
 spikes/<spike>/
 ```
 
-The `docs/pie/.../spike.md` file is the durable record. The top-level `spikes/<spike>/` directory is the working area for experimental code. If the spike must touch the real application to gather evidence, the agent may edit normal project files, but it must record the touched paths in `spike.md`. Spike code should not become production code unless it is intentionally promoted during delivery.
+`spike.md` is the durable record. `spikes/<spike>/` is the working area for experimental code, fixtures, scripts, and notes.
 
-PIE initialization must enforce this separation in repository tooling. At minimum, `spikes/` must be excluded from Git tracking. When applicable, `spikes/` and `docs/pie/` must also be excluded from lint, test, build, and package-publish inputs unless the user explicitly promotes those artifacts.
-
-Spike metadata:
+Metadata:
 
 ```yaml
 ---
 type: spike
 name: <spike>
 parent_intent: <intent>
-status: active
+status: proposed|active|completed|distilled|discarded|promoted
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
 decision_target: "<decision this spike informs>"
@@ -208,22 +182,13 @@ distilled_into_parent: false
 ---
 ```
 
-Recommended spike statuses:
+Spike-only work must be isolated from production code unless explicitly promoted. `/pie:init` must exclude `spikes/` from Git, and must exclude both `spikes/` and `docs/pie/` from lint, test, build, and package-publish inputs when those tools are present. `docs/pie/` is durable project state and should normally stay versioned.
 
-| Status | Meaning |
-|---|---|
-| `proposed` | Suggested but not yet started. |
-| `active` | Currently being worked on. |
-| `completed` | Work finished, findings not yet distilled. |
-| `distilled` | Findings incorporated into the parent intent. |
-| `discarded` | Abandoned or determined not useful. |
-| `promoted` | Findings became formal design or delivery input. |
-
-### 3.4 Decision
+### Decision
 
 A decision is a settled intent-level choice.
 
-Decision record shape:
+Record shape:
 
 ```md
 ### Decision: Short title
@@ -234,23 +199,23 @@ Decision record shape:
 - **Status:** Accepted, rejected, overridden, or deferred.
 ```
 
-### 3.5 Delivery Baseline
+Clarification answers and settled conversation conclusions should be recorded automatically when they resolve material ambiguity. `/pie:decision` is for manual recording, affirmation, or override.
 
-A Delivery Baseline is the delivery-facing summary of stable intent.
+### Delivery Baseline
 
-The latest readable baseline normally lives at:
+Current baseline:
 
 ```text
 docs/pie/<intent>/baseline.md
 ```
 
-Each delivery handoff must also create an immutable baseline revision snapshot:
+Immutable revision snapshots:
 
 ```text
 docs/pie/<intent>/baselines/<baseline_id>.md
 ```
 
-Baseline metadata:
+Metadata:
 
 ```yaml
 ---
@@ -264,8 +229,6 @@ status: current
 ---
 ```
 
-`baseline.md` is the current convenience copy. Ask records must point to the immutable revision snapshot that was used for delivery.
-
 Baseline sections:
 
 ```md
@@ -273,38 +236,43 @@ Baseline sections:
 
 ## Goal
 ## Context
-## In-Scope Intent
+## In Scope
 ## Out of Scope
-## Clarified Decisions
-## Constraints and Non-Negotiables
+## Decisions
+## Constraints
 ## Success Criteria
-## Explicit Assumptions
+## Assumptions
 ## Deferred Questions
 ## Recommended Delivery Path
 ## Trace to PIE Discovery
 ```
 
-### 3.6 Preparation Baseline
+`baseline.md` is the latest readable copy. Delivery asks must reference immutable baseline revisions.
 
-A Preparation Baseline is used when an existing system needs structural work before the new intent can be delivered cleanly.
+### Preparation Baseline
 
-It normally lives at:
+Location:
 
 ```text
 docs/pie/<intent>/preparation-baseline.md
 ```
 
-### 3.7 Delivery Ask
+Use this only when a brownfield system needs prerequisite structural work before the new intent can be delivered cleanly.
 
-A Delivery Ask is a durable record of a handoff from PIE to direct implementation or a downstream delivery framework.
+### Delivery Ask
 
-It normally lives at:
+Location:
 
 ```text
 docs/pie/<intent>/asks/<ask_id>.md
 ```
 
-Ask metadata:
+Purpose:
+
+- record a handoff from PIE to direct implementation or a downstream framework;
+- preserve the exact intent and baseline revision used for delivery.
+
+Metadata:
 
 ```yaml
 ---
@@ -323,11 +291,51 @@ downstream_target:
 ---
 ```
 
-The ask record answers which intent produced the request, which baseline revision was used, where the work went, and when the handoff happened.
+If the downstream target is unknown during export, record a pending or proposed target and update the ask when known.
 
-If the downstream target ID is not known at export time, the ask may record a proposed or pending target. The ask, index, and export history should be updated when the downstream target becomes known.
+## 6. Readiness Gate
 
-### 3.8 Traceability Chain
+An intent is ready for delivery only when:
+
+- the goal is clear enough to implement;
+- the intent aligns with the Project Goal or project drift has been explicitly resolved;
+- relevant project guardrails are reflected;
+- material decisions are made or explicitly deferred as non-blocking;
+- constraints and non-negotiables are known;
+- success criteria are understandable;
+- no active or undistilled spike blocks delivery;
+- delivery can proceed without silently inventing intent;
+- for brownfield work, prerequisite preparation has been assessed and separated where needed.
+
+If any item fails, remain in discovery, ask a material question, create or continue a spike, or distill accumulated learning.
+
+## 7. Command Semantics
+
+| Command | Purpose |
+|---|---|
+| `/pie:init` | Initialize project context, index, agent guidance, and spike isolation. |
+| `/pie:project` | Display or update Project Goal, guardrails, principles, and brownfield context. |
+| `/pie:intent <name> <description>` | Create an intent, assess project alignment, and assess readiness. |
+| `/pie:intent [name]` | List intents or switch active intent. |
+| `/pie:spike [name]` | List, create, inspect, select, or continue a spike. |
+| `/pie:distill` | Fold spike findings or long discovery context into durable intent updates. |
+| `/pie:decision <description>` | Manually record, affirm, reject, or override a decision. |
+| `/pie:implement` | Run readiness gate, create baseline revision and ask, then implement directly. |
+| `/pie:export <adapter>` | Run readiness gate, create baseline revision and ask, then write downstream seed. |
+| `/pie:feedback <description>` | Reconcile intent-changing delivery feedback back into PIE. |
+| `/pie:baseline` | Optional preview or explicit baseline generation without delivery. |
+
+## 8. Normal Flow
+
+1. `/pie:init` creates project context and durable state.
+2. `/pie:intent <name> <description>` creates an intent under the Project Goal.
+3. The agent clarifies material ambiguity. Clear answers update the intent immediately.
+4. `/pie:spike <name>` is used when evidence is needed.
+5. `/pie:distill` folds spike findings or long discovery into the intent.
+6. When the readiness gate passes, `/pie:implement` or `/pie:export <adapter>` creates a baseline revision and delivery ask.
+7. `/pie:feedback` reopens or updates PIE only when delivery changes intent.
+
+## 9. Traceability
 
 Every delivery handoff must preserve this chain:
 
@@ -338,187 +346,18 @@ PIE Intent ID
       -> Downstream Target ID
 ```
 
-PIE does not model downstream task decomposition. It only preserves lineage between what was meant, what was handed off, where it went, and what came back.
+The intent and index should retain delivery history. Downstream seeds should include:
 
-## 4. Durable State
-
-PIE maintains an index:
-
-```text
-docs/pie/index.md
+```md
+## PIE Origin
+- PIE Intent: `PIE-INTENT-<INTENT-SLUG>`
+- PIE Delivery Baseline: `PIE-BASELINE-<INTENT-SLUG>-R<N>`
+- PIE Delivery Ask: `PIE-ASK-<INTENT-SLUG>-<TARGET>-<NNN>`
 ```
 
-The index tracks:
+Repeated exports of the same intent to the same adapter should default to updating the known downstream target while creating a new ask record for the new handoff. Create a new downstream target only when the user requests it, the work is materially independent, or the downstream framework requires it.
 
-- project context artifact;
-- active intent;
-- active spike;
-- intent statuses;
-- baseline status;
-- baseline revisions;
-- delivery ask history;
-- downstream target IDs when known;
-- child spikes;
-- major blockers;
-- artifact links.
-
-Every command that changes active context, status, baseline state, delivery ask state, downstream target state, or spike state must update the index.
-
-Recommended durable state layout:
-
-```text
-docs/pie/
-  project.md
-  index.md
-  <intent>/
-    intent.md
-    baseline.md
-    baselines/
-      <baseline_id>.md
-    asks/
-      <ask_id>.md
-    exports/
-    preparation-baseline.md
-    spikes/
-      <spike>/
-        spike.md
-```
-
-## 5. Workflow
-
-### 5.1 Initialize project context
-
-Initialize:
-
-```text
-/pie:init
-```
-
-`/pie:init` creates or updates project guidance, `docs/pie/project.md`, and `docs/pie/index.md`.
-
-For greenfield work, it asks for the high-level Project Goal and any material project guardrails.
-
-For brownfield work, it reconstructs a candidate Project Goal and guardrails from existing repo context, then asks the user to confirm or revise them.
-
-Display or update project context:
-
-```text
-/pie:project
-```
-
-`/pie:project` shows the current Project Goal, guardrails, shared principles, and broad project context, then lightly invites updates.
-
-### 5.2 Start or select intent
-
-Create:
-
-```text
-/pie:intent <name> <description>
-```
-
-List or switch:
-
-```text
-/pie:intent
-/pie:intent <name>
-```
-
-When creating an intent, assess alignment with `docs/pie/project.md`. If the intent appears misaligned, ask whether to reframe the intent, update the Project Goal, or treat the work as separate.
-
-### 5.3 Clarify and converge
-
-When the agent asks a material clarifying question and the user answers, the agent should immediately determine whether the answer:
-
-1. resolves a tracked ambiguity;
-2. creates or confirms a decision;
-3. changes current understanding;
-4. affects readiness.
-
-If yes, the agent updates the active intent and index automatically.
-
-### 5.4 Spike when evidence is needed
-
-Create or select:
-
-```text
-/pie:spike <name>
-```
-
-Distill when findings are ready:
-
-```text
-/pie:distill
-```
-
-Distillation:
-
-- summarizes findings;
-- updates the spike artifact;
-- records settled decisions;
-- recommends unresolved decisions;
-- updates the parent intent;
-- updates readiness and index state.
-
-### 5.5 Manually record decisions when needed
-
-Use:
-
-```text
-/pie:decision <description>
-```
-
-for explicit recording, affirming, rejecting, or overriding decisions. It is not required after every clarification or distillation.
-
-### 5.6 Deliver when ready
-
-Delivery may begin only when:
-
-- the goal is clear enough to implement;
-- the intent aligns with the Project Goal or project-level drift has been explicitly resolved;
-- project guardrails and shared principles are reflected where materially relevant;
-- material decisions are made or explicitly deferred as non-blocking;
-- constraints are known;
-- success criteria are understandable;
-- delivery can proceed without inventing intent;
-- for existing systems, prerequisite preparation has been assessed.
-
-Direct implementation:
-
-```text
-/pie:implement
-```
-
-Export:
-
-```text
-/pie:export speckit
-/pie:export lid
-```
-
-Both commands create or refresh the Delivery Baseline after readiness passes.
-
-Each delivery command must also:
-
-- create a new immutable baseline revision if the delivery input changed;
-- create a Delivery Ask record;
-- update the intent and index export history;
-- include PIE origin metadata in downstream seed artifacts.
-
-When exporting the same intent to the same downstream framework again, PIE should default to updating the existing downstream target when one is known. It should still create a new ask record for the new handoff. A new downstream target should be created only when the user requests it, the work is materially independent, or the downstream framework requires it.
-
-### 5.7 Reconcile feedback
-
-Use:
-
-```text
-/pie:feedback <description>
-```
-
-when implementation, downstream planning, production, or user feedback changes intent.
-
-Routine implementation details should not churn PIE artifacts.
-
-Feedback should reference the delivery ask lineage when available:
+Feedback should record ask lineage when available:
 
 ```yaml
 feedback_source:
@@ -528,26 +367,9 @@ feedback_source:
   target_framework: direct|speckit|lid
 ```
 
-This lets PIE identify which intent to reopen, which baseline assumption was challenged, and whether a downstream seed or target must be regenerated or patched.
+## 10. Adapter Rule
 
-If feedback suggests repeated or material project-level drift, the agent should surface that explicitly and ask whether to update `docs/pie/project.md` through `/pie:project`.
-
-## 6. Brownfield Rule
-
-For existing systems, PIE must assess:
-
-- how the new intent aligns with the Project Goal;
-- whether the intent changes the system mission, architecture, or boundaries;
-- whether architecture, data model, APIs, state model, tests, or operations are ready;
-- whether preparation should be separated from the new feature.
-
-If the intent aligns and does not materially change mission or boundaries, use the normal intent flow. If it aligns but materially changes architecture, mission, or boundaries, capture an Intent Delta Brief in the intent. If alignment is unclear or negative, ask whether the Project Goal should evolve, the intent should be reframed, or the work belongs elsewhere.
-
-If preparation is needed, create a Preparation Baseline before or alongside the new-intent Delivery Baseline.
-
-## 7. Adapter Rule
-
-PIE adapters produce downstream seeds. They do not replace downstream workflows.
+Adapters produce PIE-owned downstream seeds. They do not replace downstream workflows.
 
 Current adapters:
 
@@ -555,12 +377,3 @@ Current adapters:
 - [`lid`](https://github.com/jszmajda/lid): writes `docs/pie/<intent>/exports/lid-seed.md`.
 
 If export reveals missing delivery-critical intent, stop and reopen PIE instead of inventing downstream requirements.
-
-Adapter outputs must include a bidirectional provenance block:
-
-```md
-## PIE Origin
-- PIE Intent: `PIE-INTENT-<INTENT-SLUG>`
-- PIE Delivery Baseline: `PIE-BASELINE-<INTENT-SLUG>-R<N>`
-- PIE Delivery Ask: `PIE-ASK-<INTENT-SLUG>-<TARGET>-<NNN>`
-```

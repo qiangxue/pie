@@ -37,7 +37,7 @@ Read:
 docs/pie/<intent>/baselines/<baseline_id>.md
 ```
 
-If the baseline is absent or stale, `/pie:export lid` must run the Ready for Delivery check and create or refresh the baseline before exporting.
+If the baseline is absent or stale, `/pie:export lid` must run the readiness gate and create or refresh the baseline before exporting.
 
 ## Output Artifact
 
@@ -63,12 +63,12 @@ On repeated export of the same intent to [LID](https://github.com/jszmajda/lid),
 |---|---|
 | Goal | HLD purpose / design-delta rationale |
 | Context | HLD background and project framing |
-| In-Scope Intent | Candidate LLD segment scope and behavior expectations |
+| In Scope | Candidate LLD segment scope and behavior expectations |
 | Out of Scope | Explicit exclusions in HLD/LLD |
-| Clarified Decisions | HLD/LLD decisions |
-| Constraints and Non-Negotiables | HLD/LLD constraints |
+| Decisions | HLD/LLD decisions |
+| Constraints | HLD/LLD constraints |
 | Success Criteria | Candidate EARS claims and behavioral validation targets |
-| Explicit Assumptions | Design assumptions to confirm during [LID](https://github.com/jszmajda/lid) review |
+| Assumptions | Design assumptions to confirm during [LID](https://github.com/jszmajda/lid) review |
 | Deferred Questions | [LID](https://github.com/jszmajda/lid) open questions |
 | Trace to PIE Discovery | Rationale and supporting evidence |
 

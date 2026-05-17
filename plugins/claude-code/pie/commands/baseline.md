@@ -53,12 +53,12 @@ Use this content in both the current baseline and revision snapshot:
 # Delivery Baseline - [Intent Title]
 ## Goal
 ## Context
-## In-Scope Intent
+## In Scope
 ## Out of Scope
-## Clarified Decisions
-## Constraints and Non-Negotiables
+## Decisions
+## Constraints
 ## Success Criteria
-## Explicit Assumptions
+## Assumptions
 ## Deferred Questions
 ## Recommended Delivery Path
 ## Trace to PIE Discovery
@@ -69,14 +69,14 @@ Use this content in both the current baseline and revision snapshot:
 Use `docs/pie/<intent>/preparation-baseline.md` only when existing-system preparation is required:
 
 ```md
-# Preparation Baseline - [Preparation Unit]
+# Preparation Baseline - [Preparation Scope]
 ## Purpose
 ## Current System Constraint
 ## Preparation Scope
 ## Out of Scope
 ## Success Criteria
 ## Sequencing
-## Trace to Intent Delta Brief
+## Trace to Parent Intent
 ```
 
 ## Output

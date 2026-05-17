@@ -1,34 +1,46 @@
 ---
 name: pie-core
-description: Apply Progressive Intent Engineering when work has unclear intent, spikes, durable PIE state, delivery-baseline needs, or feedback that may change intent.
+description: Apply Progressive Intent Engineering when work has unclear intent, project-goal alignment concerns, spikes, delivery-baseline needs, or intent-changing feedback.
 ---
 
 # PIE Core
 
-Use Progressive Intent Engineering as an upstream operating policy for software work whose intent may not be implementation-ready.
+Use Progressive Intent Engineering as an upstream operating policy for software work whose intent may not be delivery-ready.
+
+## Operating Model
+
+PIE answers:
+
+```text
+Is this ready to deliver?
+If yes, what stable baseline should delivery use?
+If no, what question, decision, evidence, or feedback is missing?
+```
+
+Keep the model simple:
+
+```text
+Project Goal -> Intent -> Spike/Decision -> Delivery Baseline -> Delivery Ask -> Delivery -> Feedback
+```
+
+PIE does not own downstream task decomposition. Specs, plans, tasks, implementation, tests, [Spec Kit](https://github.com/github/spec-kit), and [LID](https://github.com/jszmajda/lid) stay downstream.
 
 ## Default Behavior
 
-1. Assess whether the user's intent is delivery-ready before designing or coding.
-2. Clarify only material ambiguity: product semantics, architecture, boundaries, security, compliance, operability, reliability, cost, performance, scale, external contracts, or material scope.
-3. Default to action with isolation for reversible local choices that do not materially affect intent.
-4. Draft PIE artifacts yourself; the human reviews, corrects, approves, or rejects them.
-5. Maintain `docs/pie/project.md` as durable project-level context and `docs/pie/index.md` as durable PIE state. Do not rely on chat history as the source of truth.
-6. Treat the Project Goal as a guardrail for intents, not as an intent or delivery artifact.
-7. Assess new intents against the Project Goal and flag project drift instead of silently changing what the project is for.
-8. Apply the Convergence Rule automatically when a clarification answer, explicit user decision, or clearly settled conclusion resolves material ambiguity or changes intent.
-9. Treat spikes as child investigations under a parent intent.
-10. Use `/pie:distill` for broader synthesis of spike findings, long or branched conversations, accumulated evidence, or explicit checkpoints.
-11. Keep spikes tied to named uncertainties and isolated from production tooling.
-12. During `/pie:init`, define or reconstruct the Project Goal and enforce spike isolation in repository ignore, lint, test, and package-publish configuration before spike code is created.
-13. Garbage-collect spike work by disposition: discard, distill, continue isolated, promote, or abandon.
-14. Generate or refresh the Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
-15. Preserve traceability from intent to baseline revision to delivery ask to downstream target.
-16. Route delivery feedback back to PIE only when implementation changes the intended work.
+- Assess readiness before coding or exporting.
+- Clarify only material ambiguity: product meaning, scope, architecture, boundaries, data, security, reliability, cost, scale, external contracts, or success criteria.
+- Make reasonable choices for local reversible details.
+- Maintain `docs/pie/project.md` and `docs/pie/index.md` as durable state.
+- Treat the Project Goal as the guardrail for intents, not as an intent or delivery artifact.
+- Assess new intents against the Project Goal and surface project drift.
+- Apply Convergence automatically when a clarification answer or explicit user decision resolves material ambiguity.
+- Use spikes for empirical uncertainty.
+- Use `/pie:distill` for spike findings, long discovery conversations, accumulated evidence, or explicit checkpoints.
+- Generate or refresh a Delivery Baseline automatically when `/pie:implement` or `/pie:export <adapter>` begins delivery.
+- Preserve traceability from intent ID to baseline revision to delivery ask to downstream target.
+- Route delivery feedback back to PIE only when it changes intent.
 
-## Artifact Defaults
-
-Use per-intent folders and a durable index:
+## Durable State
 
 ```text
 docs/pie/
@@ -45,52 +57,38 @@ docs/pie/
     spikes/
       <spike>/
         spike.md
+spikes/
+  <spike>/
 ```
 
-Every PIE command must read and update `docs/pie/index.md` when active context, status, baseline state, delivery ask state, downstream target state, or spike state changes.
+Spike-only code belongs in `spikes/<spike>/`, outside `docs/`. `/pie:init` must exclude `spikes/` from Git, and must exclude both `spikes/` and `docs/pie/` from lint, test, build, and package-publish inputs when those tools are present. `docs/pie/` is durable PIE state and should normally be committed.
 
-`docs/pie/project.md` records Project Goal, guardrails, shared principles, and brownfield system context when relevant. It is project-level context and does not enter the Discover -> Baseline -> Delivery lifecycle.
-
-For greenfield projects, `/pie:init` should ask for the high-level Project Goal and only material project-level clarifications before creating `project.md`. For brownfield projects, `/pie:init` should inspect existing durable context, propose a reconstructed Project Goal and guardrails, and ask the user to confirm or revise before writing `project.md`.
-
-Use `/pie:project` to display the current Project Goal, guardrails, shared principles, and any brownfield context. End with a light invitation to update project context.
-
-`/pie:init` must add or verify isolation excludes:
-
-- `.gitignore`: `spikes/`
-- `.eslintignore`: `spikes/` and `docs/pie/`, when present or when ESLint ignore files are used
-- `.npmignore`: `spikes/` and `docs/pie/`, when present or when the repository is an npm package
-- equivalent excludes for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package publishing, or language-specific lint/build systems
-
-Preserve existing ignore entries and comments. Append missing entries under a short `# PIE` section. `/pie:spike` should verify isolation before creating or running spike code.
-
-Each intent and spike should carry lightweight frontmatter metadata: `type`, `name`, `status`, `created_at`, `updated_at`, and relationship fields where relevant. Each intent must also carry a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`.
-
-Small clear tasks may move quickly to `/pie:implement` or `/pie:export <adapter>`, but the delivery command still creates or refreshes the baseline if needed. Moderate ambiguity usually needs an intent plus decisions. Empirical uncertainty needs one or more spikes.
-
-When creating an intent, load `docs/pie/project.md` and assess whether the intent aligns with the Project Goal and guardrails. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
-
-Use `/pie:intent` with no arguments to list intents and active context. Use `/pie:intent <name>` to switch active intent. Use `/pie:spike` and `/pie:spike <name>` to list or select child spikes.
-
-Clarification answers should auto-trigger Convergence. When the user answers a material clarifying question, immediately update the active intent and index if the answer resolves a tracked ambiguity, creates or confirms a decision, changes current understanding, or affects readiness.
-
-`/pie:distill` should synthesize broader context and automatically record decisions already settled by accumulated conversation or accepted spike findings. It should recommend but not mark as accepted any decision that still requires human approval. `/pie:decision <description>` is for manual recording, affirmation, override, or decisions made outside the normal PIE flow.
-
-## Ready For Delivery
+## Readiness Gate
 
 Create or refresh a Delivery Baseline only when:
 
-- The goal is clear enough to implement.
-- The intent aligns with the Project Goal or project-level drift has been explicitly resolved.
-- Project guardrails and shared principles are reflected where materially relevant.
-- Material decisions have been made or explicitly deferred as non-blocking.
-- Key constraints and non-negotiables are known.
-- Success criteria are understandable.
-- Downstream delivery can proceed without silently inventing intent.
-- For existing systems, prerequisite system preparation has been assessed and separated where needed.
+- the goal is clear enough to implement;
+- the intent aligns with the Project Goal or project drift has been resolved;
+- relevant guardrails are reflected;
+- material decisions are made or deferred as non-blocking;
+- constraints and success criteria are known;
+- no active or undistilled spike blocks delivery;
+- delivery can proceed without inventing intent;
+- brownfield preparation has been assessed where needed.
 
-`/pie:baseline` may preview or explicitly generate a baseline, but it is not required in the normal flow. `/pie:implement` and `/pie:export <adapter>` should generate or refresh the baseline automatically after the readiness check passes.
+If readiness fails, report blockers and recommend clarification, spike work, distillation, or project-goal review.
 
-Delivery commands must create an immutable baseline snapshot under `docs/pie/<intent>/baselines/` and a Delivery Ask record under `docs/pie/<intent>/asks/`. Ask records preserve the chain from `intent_id` to `baseline_id` to `ask_id` to the downstream target. If a downstream target ID is unknown at export time, record a proposed or pending target and update the ask when known. Re-exporting the same intent to the same adapter should default to updating the known downstream target while still creating a new ask record for the new handoff.
+## Command Behavior
 
-Export adapters live under `${CLAUDE_PLUGIN_ROOT}/adapters/`. `/pie:export speckit` writes `docs/pie/<intent>/exports/speckit-seed.md` for [Spec Kit](https://github.com/github/spec-kit); `/pie:export lid` writes `docs/pie/<intent>/exports/lid-seed.md` for [LID](https://github.com/jszmajda/lid). Adapter output is a downstream seed, not a replacement for the downstream workflow. Adapter output must include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.
+- `/pie:init`: create project context, index, guidance files, and spike isolation.
+- `/pie:project`: show or update project goal and guardrails.
+- `/pie:intent`: create, list, or switch intents; new intents must be assessed against the Project Goal.
+- `/pie:spike`: create, list, select, or continue spikes under the active intent.
+- `/pie:distill`: fold spike findings or long discovery context into durable intent updates.
+- `/pie:decision`: manual decision record, affirmation, rejection, or override.
+- `/pie:implement`: run the readiness gate, create baseline revision and delivery ask, then direct implementation.
+- `/pie:export <adapter>`: run the readiness gate, create baseline revision and delivery ask, then downstream seed.
+- `/pie:feedback`: reconcile intent-changing delivery feedback back into PIE.
+- `/pie:baseline`: optional baseline preview without delivery.
+
+Export adapters live under `${CLAUDE_PLUGIN_ROOT}/adapters/`. `/pie:export speckit` writes a [Spec Kit](https://github.com/github/spec-kit) seed; `/pie:export lid` writes an [LID](https://github.com/jszmajda/lid) seed. Adapter output must include a `PIE Origin` block with the PIE Intent ID, Delivery Baseline ID, and Delivery Ask ID.

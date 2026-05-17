@@ -33,7 +33,7 @@ Read:
 docs/pie/<intent>/baselines/<baseline_id>.md
 ```
 
-If the baseline is absent or stale, `/pie:export speckit` must run the Ready for Delivery check and create or refresh the baseline before exporting.
+If the baseline is absent or stale, `/pie:export speckit` must run the readiness gate and create or refresh the baseline before exporting.
 
 ## Output Artifact
 
@@ -59,12 +59,12 @@ On repeated export of the same intent to [Spec Kit](https://github.com/github/sp
 |---|---|
 | Goal | Feature summary and specification framing |
 | Context | Background and user/system context |
-| In-Scope Intent | Functional requirements seed |
+| In Scope | Functional requirements seed |
 | Out of Scope | Non-goals |
-| Clarified Decisions | Pre-resolved requirement decisions |
-| Constraints and Non-Negotiables | Constitution/spec constraints and planning guardrails |
+| Decisions | Pre-resolved requirement decisions |
+| Constraints | Constitution/spec constraints and planning guardrails |
 | Success Criteria | Acceptance expectations and validation targets |
-| Explicit Assumptions | Assumptions to preserve or revisit in clarification |
+| Assumptions | Assumptions to preserve or revisit in clarification |
 | Deferred Questions | Known clarification inputs, marked non-blocking unless stated otherwise |
 | Trace to PIE Discovery | Source references for rationale |
 
@@ -117,7 +117,7 @@ Relevant product, user, domain, system, and operational context.
 ## Acceptance Expectations
 - ...
 
-## Explicit Assumptions
+## Assumptions
 - ...
 
 ## Deferred Clarifications

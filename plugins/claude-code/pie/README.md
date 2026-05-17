@@ -38,8 +38,8 @@ Claude Code normally exposes plugin commands with the plugin namespace:
 - `/pie:spike`: list spikes for the active intent.
 - `/pie:distill`: synthesize spike findings, long discovery conversations, or explicit checkpoints into the active intent; record settled decisions and recommend unresolved ones.
 - `/pie:decision <description>`: manually record, affirm, or override an intent-level decision.
-- `/pie:implement`: readiness-check, auto-baseline, and begin direct implementation.
-- `/pie:export <adapter>`: readiness-check, auto-baseline, and export to [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another adapter.
+- `/pie:implement`: run the readiness gate, create a baseline and ask, and begin direct implementation.
+- `/pie:export <adapter>`: run the readiness gate, create a baseline and ask, and export to [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another adapter.
 - `/pie:feedback <description>`: reconcile delivery feedback back into PIE.
 - `/pie:baseline`: optional baseline preview or explicit generation without delivery.
 

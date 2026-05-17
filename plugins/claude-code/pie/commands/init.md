@@ -26,6 +26,7 @@ Initialize PIE in the repository.
    - ensure `.npmignore` contains `spikes/` and `docs/pie/` when the repository is an npm package or already has `.npmignore`;
    - apply equivalent excludes for detected tooling such as Biome, Rome, Prettier, Stylelint, test runners, package-publish configs, or language-specific lint/build systems;
    - preserve existing ignore entries and comments; append missing PIE entries under a short `# PIE` section.
+   - do not add `docs/pie/` to `.gitignore` by default because it is durable PIE state.
 14. Preserve existing build, test, style, security, and environment instructions.
 
 ## Project Context

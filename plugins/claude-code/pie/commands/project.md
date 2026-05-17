@@ -6,7 +6,7 @@ description: Display or update PIE project-level goal, guardrails, and shared pr
 
 Display the current project-level PIE context.
 
-The Project Goal is not an intent and does not enter the Discover -> Baseline -> Delivery lifecycle. It is the project-level guardrail that individual intents must align with.
+The Project Goal is not an intent and does not enter the discovery -> baseline -> delivery lifecycle. It is the project-level guardrail that individual intents must align with.
 
 ## Process
 

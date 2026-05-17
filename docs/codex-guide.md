@@ -1,15 +1,13 @@
 # Using PIE With Codex
 
-PIE works with Codex through project guidance and repeatable prompt patterns.
+Codex can follow PIE through project guidance and repeatable prompt patterns.
 
-Use PIE in Codex through:
+Use PIE in Codex with:
 
-- `AGENTS.md` project guidance;
-- concise PIE prompt commands;
+- a project `AGENTS.md`;
 - durable files under `docs/pie/`;
-- project-level context in `docs/pie/project.md`;
-- traceability from intent ID to baseline revision to delivery ask;
-- Codex built-in commands such as `/plan`, `/compact`, `/status`, `/review`, and `/plugins` when useful.
+- prompt commands such as `PIE intent ...`;
+- Codex built-ins such as `/plan`, `/compact`, `/status`, and `/review` when useful.
 
 Official Codex references:
 
@@ -18,7 +16,7 @@ Official Codex references:
 
 ## 1. Add PIE Guidance
 
-Copy or adapt:
+Copy or merge:
 
 ```text
 plugins/templates/codex/AGENTS.md
@@ -26,141 +24,110 @@ plugins/templates/codex/AGENTS.md
 
 into the target project's root `AGENTS.md`.
 
-If the project already has an `AGENTS.md`, merge the PIE sections into it instead of replacing existing repository rules.
+If the project already has an `AGENTS.md`, merge the PIE sections instead of replacing existing repository rules.
 
-## 2. Initialize PIE With a Prompt
+## 2. Initialize PIE
 
-In Codex, ask:
-
-```text
-Use PIE. Initialize durable PIE state in this repository:
-- create or confirm docs/pie/project.md with the Project Goal and guardrails;
-- create docs/pie/index.md if missing;
-- enforce spike isolation in Git, lint, test, and package-publish tooling;
-- preserve existing AGENTS.md guidance;
-- summarize the active PIE command model;
-- do not start implementation yet.
-```
-
-## 3. Use PIE Prompt Commands
-
-Use short, repeatable prompts. For example:
-
-| Prompt | Behavior |
-|---|---|
-| `PIE init` | Initialize Project Goal and durable PIE state in this repo. |
-| `PIE project` | Display or update project-level goal, guardrails, and shared principles. |
-| `PIE intent stock-screener: ...` | Create or update an intent. |
-| `PIE list intents` | List intents and active context. |
-| `PIE switch intent stock-screener` | Switch active intent. |
-| `PIE spike vcp-scoring: ...` | Create or continue a spike. |
-| `PIE distill` | Synthesize the active spike or recent discovery into durable artifacts. |
-| `PIE decision: ...` | Manually record, affirm, reject, or override a decision. |
-| `PIE implement` | Readiness-check, baseline, then implement. |
-| `PIE export speckit` | Readiness-check, baseline, then write the [Spec Kit](https://github.com/github/spec-kit) seed. |
-| `PIE export lid` | Readiness-check, baseline, then write the [LID](https://github.com/jszmajda/lid) seed. |
-| `PIE feedback: ...` | Reconcile delivery feedback back into PIE. |
-| `PIE baseline` | Preview or refresh the Delivery Baseline without starting delivery. |
-
-The important part is not the prefix. The important part is that Codex follows the durable-state behavior in `AGENTS.md` and updates `docs/pie/`.
-
-`PIE init` should create `docs/pie/project.md`. For greenfield projects, Codex should ask for the high-level Project Goal. For brownfield projects, Codex should inspect durable repo context, propose a reconstructed goal and guardrails, and ask for confirmation or revision.
-
-When creating an intent, Codex should assess it against the Project Goal. If alignment is unclear, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
-
-Delivery prompts should preserve this chain:
-
-```text
-PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
-```
-
-`PIE implement` and `PIE export <adapter>` should create immutable baseline snapshots under `docs/pie/<intent>/baselines/` and ask records under `docs/pie/<intent>/asks/`. Downstream seeds should include a `PIE Origin` block with the intent ID, baseline ID, and ask ID.
-
-`PIE init` should also add missing PIE excludes to applicable repository tooling:
-
-- `.gitignore`: `spikes/`;
-- `.eslintignore`: `spikes/` and `docs/pie/`, when ESLint ignore files are used;
-- `.npmignore`: `spikes/` and `docs/pie/`, when the repository is an npm package or already has `.npmignore`;
-- equivalent excludes for detected lint, test, build, or package-publish systems.
-
-## 4. Use Codex Built-In Slash Commands Around PIE
-
-Codex slash commands are useful around PIE, but they are not the PIE workflow itself.
-
-Examples:
-
-```text
-/plan PIE intent stock-screener: Build a local stock screener that ranks high-quality breakout candidates.
-```
-
-Use `/plan` when you want Codex to discuss the approach before editing files.
-
-```text
-/compact
-```
-
-Use `/compact` after a long discovery session. Then ask `PIE distill` to refresh durable artifacts if important conclusions accumulated.
-
-```text
-/status
-```
-
-Use `/status` to inspect the Codex session. Use `PIE list intents and show active context` to inspect PIE state.
-
-## 5. Spike Code Location
-
-Spike records live under:
-
-```text
-docs/pie/<intent>/spikes/<spike>/
-```
-
-The spike record is:
-
-```text
-docs/pie/<intent>/spikes/<spike>/spike.md
-```
-
-Spike-only code, fixtures, scripts, notes, and prototypes should live outside `docs/` under:
-
-```text
-spikes/<spike>/
-```
-
-If a spike must touch real project files, Codex should record the touched paths and the reason in `spike.md`. Spike code should not become production code unless it is explicitly promoted after distillation or delivery planning.
-
-Before Codex creates or runs spike code, it should verify the isolation excludes from `PIE init` are present.
-
-## 6. Practical Codex Session
+Ask Codex:
 
 ```text
 PIE init
 ```
 
-Codex should create or confirm `docs/pie/project.md` before the first intent.
+Codex should:
+
+- create or confirm `docs/pie/project.md`;
+- create `docs/pie/index.md` if missing;
+- enforce spike isolation in Git, lint, test, build, and package-publish tooling;
+- preserve existing project guidance.
+
+For greenfield projects, Codex asks for the Project Goal. For brownfield projects, Codex inspects durable repo context, proposes a reconstructed goal and guardrails, and asks for confirmation or revision.
+
+## 3. Prompt Commands
+
+These are prompt patterns, not shell commands:
+
+| Prompt | Behavior |
+|---|---|
+| `PIE init` | Initialize Project Goal and durable PIE state. |
+| `PIE project` | Show or update Project Goal and guardrails. |
+| `PIE intent <name>: <description>` | Create or update an intent under the Project Goal. |
+| `PIE list intents` | List intents and active context. |
+| `PIE switch intent <name>` | Switch active intent. |
+| `PIE spike <name>: <question>` | Create or continue a spike. |
+| `PIE distill` | Fold spike findings or long discovery into durable artifacts. |
+| `PIE decision: <description>` | Manually record or override a decision. |
+| `PIE implement` | Run the readiness gate, create baseline revision and ask, then implement. |
+| `PIE export speckit` | Run the readiness gate, create baseline revision and ask, then write the [Spec Kit](https://github.com/github/spec-kit) seed. |
+| `PIE export lid` | Run the readiness gate, create baseline revision and ask, then write the [LID](https://github.com/jszmajda/lid) seed. |
+| `PIE feedback: <description>` | Reconcile delivery feedback back into PIE. |
+| `PIE baseline` | Optional baseline preview without delivery. |
+
+The wording can vary. What matters is that Codex updates durable PIE artifacts and does not rely on chat history as the source of truth.
+
+## 4. Normal Session
+
+```text
+PIE init
+```
 
 ```text
 PIE intent stock-screener: Build a local stock screener that ranks high-quality pre-breakout candidates.
 ```
 
-Codex may ask a material clarifying question. When you answer, Codex should apply the Convergence Rule and update the intent automatically.
+Codex should assess the intent against `docs/pie/project.md`, ask only material clarification questions, and update the intent when answers settle decisions.
 
-If the answer needs evidence:
+If evidence is needed:
 
 ```text
 PIE spike vcp-scoring: compare binary VCP detection with ranked setup scoring.
 ```
 
-After the spike work:
+After the spike:
 
 ```text
-PIE distill: synthesize the active spike into the parent intent and record settled decisions.
+PIE distill
 ```
 
-When the intent is ready:
+When the readiness gate passes:
 
 ```text
-PIE implement: readiness-check, create or refresh the Delivery Baseline, and begin direct implementation.
+PIE implement
 ```
 
-Codex should create a baseline revision and direct implementation ask before coding from that baseline.
+or:
+
+```text
+PIE export speckit
+PIE export lid
+```
+
+## 5. Spike Code
+
+Spike records live under:
+
+```text
+docs/pie/<intent>/spikes/<spike>/spike.md
+```
+
+Spike-only code lives under:
+
+```text
+spikes/<spike>/
+```
+
+Before creating or running spike code, Codex should verify the isolation excludes created by `PIE init`.
+
+## 6. Codex Built-Ins Around PIE
+
+Use `/plan` when you want Codex to discuss the PIE action before editing files:
+
+```text
+/plan PIE intent stock-screener: Build a local stock screener that ranks high-quality breakout candidates.
+```
+
+Use `/compact` after a long discovery session, then run `PIE distill` if important conclusions accumulated.
+
+Use `/status` for the Codex session and `PIE list intents` for PIE state.
+
+Use `/review` after implementation as usual. If the review exposes intent-changing feedback, run `PIE feedback: ...`.

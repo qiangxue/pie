@@ -45,7 +45,7 @@ If the spike does not exist:
 2. Create `docs/pie/<intent>/spikes/<name>/spike.md`.
 3. Create `spikes/<name>/` for spike-only code, fixtures, scripts, notes, and other experimental files.
 4. Register the spike under the active intent in `docs/pie/index.md`.
-5. Verify spike isolation excludes are present in repository tooling. If `spikes/` is not excluded from Git, linting, tests, or package publishing where applicable, update the relevant ignore/config files or stop and ask the user to run `/pie:init`.
+5. Verify spike isolation excludes are present in repository tooling. If `spikes/` is not excluded from Git, or if `spikes/` and `docs/pie/` are not excluded from linting, tests, or package publishing where applicable, update the relevant ignore/config files or stop and ask the user to run `/pie:init`.
 6. Set it as active spike.
 
 ## Spike Metadata

@@ -1,10 +1,10 @@
-# PIE Command Reference
+# PIE Claude Code Command Reference
 
-This document defines the Claude Code command model for PIE.
+This document defines the Claude Code slash-command behavior for PIE.
 
-## Durable State And Spike Work
+Commands operate on durable artifacts under `docs/pie/`, not on chat history.
 
-Commands operate on durable artifacts, not chat memory. Spike working code is kept outside `docs/`.
+## Durable Layout
 
 ```text
 docs/pie/
@@ -17,8 +17,8 @@ docs/pie/
       <baseline_id>.md
     asks/
       <ask_id>.md
-    preparation-baseline.md
     exports/
+    preparation-baseline.md
     spikes/
       <spike>/
         spike.md
@@ -26,125 +26,122 @@ spikes/
   <spike>/
 ```
 
-## Commands
+## Command Set
 
 | Command | Purpose |
 |---|---|
-| `/pie:init` | Initialize PIE structure, Project Goal, and durable state. |
-| `/pie:project` | Display or update project-level goal, guardrails, and shared principles. |
-| `/pie:intent <name> <description>` | Create a new intent and assess its maturity. |
+| `/pie:init` | Initialize project context, index, guidance files, and spike isolation. |
+| `/pie:project` | Show or update the Project Goal, guardrails, principles, and brownfield context. |
+| `/pie:intent <name> <description>` | Create an intent, assess project alignment, and assess readiness. |
 | `/pie:intent` | List intents and active context. |
 | `/pie:intent <name>` | Switch active intent. |
-| `/pie:spike <name>` | Create, inspect, select, or continue a spike under the active intent. |
-| `/pie:spike` | List spikes under the active intent. |
-| `/pie:distill` | Synthesize spike findings, long conversations, or checkpoints into durable intent updates. |
+| `/pie:spike [name]` | List, create, inspect, select, or continue a spike. |
+| `/pie:distill` | Fold spike findings or long discovery context into durable intent updates. |
 | `/pie:decision <description>` | Manually record, affirm, reject, or override a decision. |
-| `/pie:implement` | Readiness-check, auto-baseline, and begin direct implementation. |
-| `/pie:export <adapter>` | Readiness-check, auto-baseline, and export to a downstream adapter. |
-| `/pie:feedback <description>` | Reconcile implementation or downstream delivery feedback back into PIE. |
+| `/pie:implement` | Run the readiness gate, create baseline revision and ask, then implement directly. |
+| `/pie:export <adapter>` | Run the readiness gate, create baseline revision and ask, then write downstream seed. |
+| `/pie:feedback <description>` | Reconcile delivery feedback back into PIE. |
 | `/pie:baseline` | Optional baseline preview or explicit generation without delivery. |
 
 ## `/pie:init`
 
-Initializes:
+Create or update:
 
 ```text
 AGENTS.md
 CLAUDE.md
-docs/pie/
 docs/pie/project.md
 docs/pie/index.md
 ```
 
-Existing repository rules should be preserved.
+Behavior:
 
-For a greenfield repository, `/pie:init` should ask for the high-level Project Goal, clarify only material project-level ambiguity, and create `docs/pie/project.md`.
+1. Preserve existing repository guidance.
+2. For greenfield projects, ask for the Project Goal and material guardrails.
+3. For brownfield projects, inspect durable context, propose a Project Goal and guardrails, and ask for confirmation or revision.
+4. Create the PIE index if missing.
+5. Enforce spike isolation:
+   - `.gitignore`: `spikes/`;
+   - `.eslintignore`: `spikes/` and `docs/pie/`, when applicable;
+   - `.npmignore`: `spikes/` and `docs/pie/`, when applicable;
+   - equivalent excludes for detected lint, test, build, or package-publish systems.
 
-For a brownfield repository, `/pie:init` should inspect existing durable context where available, including README files, architecture docs, ADRs, product docs, repo structure, and existing agent guidance. It should propose a reconstructed Project Goal and guardrails, then ask the user to confirm or revise them before creating `docs/pie/project.md`.
+Do not add `docs/pie/` to `.gitignore` by default. `docs/pie/` is durable PIE state and should normally be committed.
 
-`/pie:init` also enforces spike isolation by updating applicable ignore/config files:
-
-- `.gitignore`: add `spikes/`;
-- `.eslintignore`: add `spikes/` and `docs/pie/` when ESLint ignore files are used;
-- `.npmignore`: add `spikes/` and `docs/pie/` when the repository is an npm package or already has `.npmignore`;
-- equivalent tooling excludes for detected lint, test, build, or package-publish systems.
-
-Existing rules and comments must be preserved. Missing PIE entries should be appended under a short `# PIE` section.
+Do not invent a brownfield Project Goal without confirmation.
 
 ## `/pie:project`
 
-Displays the current project-level context from `docs/pie/project.md`.
+Display `docs/pie/project.md`.
 
-The agent should show:
+Show:
 
 - Project Goal;
-- Project Guardrails;
-- Shared Project Principles;
-- Current System Understanding, for brownfield projects;
-- Known Evolution Themes, when present;
-- Open Project-Level Questions, when present.
+- guardrails;
+- shared principles;
+- brownfield system understanding, when present;
+- known evolution themes and project-level questions, when present;
+- active intents.
 
-End with a light invitation to update the Project Goal, guardrails, or shared principles. Do not force an update before continuing normal work.
-
-If `docs/pie/project.md` is missing, recommend `/pie:init` or create it with the same greenfield/brownfield behavior described above.
+End with a light invitation to update project context. If the user updates it, revise `project.md`, update `index.md` when needed, and flag intents that may need alignment review.
 
 ## `/pie:intent`
 
-Creates, lists, or switches intents.
-
-Examples:
+Forms:
 
 ```text
-/pie:intent stock-screener "Build a stock screener based on VCP."
 /pie:intent
-/pie:intent stock-screener
+/pie:intent <name>
+/pie:intent <name> <description>
 ```
 
-When creating a new intent, the agent should:
+Create behavior:
 
-1. load `docs/pie/project.md`;
-2. assess alignment with the Project Goal and guardrails;
-3. flag possible project drift if the intent stretches or contradicts the Project Goal;
-4. create `docs/pie/<intent>/intent.md`;
-5. register it in `docs/pie/index.md`;
-6. set it as active;
-7. assign a stable `intent_id` such as `PIE-INTENT-STOCK-SCREENER`;
-8. assess maturity;
-9. ask focused clarification questions when needed;
-10. suggest spikes when empirical evidence is required.
+1. Load `docs/pie/project.md`.
+2. Assess whether the intent aligns with the Project Goal and guardrails.
+3. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project.
+4. Create `docs/pie/<intent>/intent.md`.
+5. Assign stable `intent_id`, for example `PIE-INTENT-STOCK-SCREENER`.
+6. Register the intent in `docs/pie/index.md` and set it active.
+7. Assess readiness.
+8. Ask only material clarification questions.
+9. Recommend a spike when evidence is needed.
 
-If alignment is unclear, ask whether to reframe the intent, update the Project Goal, or treat the work as a separate project. Do not silently let an intent change what the project is for.
+List or switch behavior:
 
-Clarification answers should auto-trigger Convergence when they resolve material ambiguity.
+- `/pie:intent` lists intents, statuses, active intent, active spike, baseline state, and latest asks.
+- `/pie:intent <name>` switches active intent and summarizes durable state.
+
+Clarification answers should auto-trigger convergence: if the answer resolves an ambiguity, creates a decision, changes understanding, or affects readiness, update the intent and index immediately.
 
 ## `/pie:spike`
 
-Creates, lists, selects, or continues spikes under the active intent.
-
-Examples:
+Forms:
 
 ```text
 /pie:spike
-/pie:spike scoring-model
+/pie:spike <name>
 ```
 
-A spike should define:
+Behavior:
 
-- question;
-- hypothesis;
-- method;
-- evaluation;
-- decision impact.
+- no name: list spikes under the active intent;
+- existing name: select the spike and summarize question, status, and next step;
+- new name: create a focused spike under the active intent.
 
-Spike-only code, fixtures, scripts, and notes should be created outside `docs/` under:
+Spike records live at:
+
+```text
+docs/pie/<intent>/spikes/<spike>/spike.md
+```
+
+Spike-only code lives at:
 
 ```text
 spikes/<spike>/
 ```
 
-The `docs/pie/<intent>/spikes/<spike>/spike.md` file is the durable record. The top-level `spikes/<spike>/` directory is the working area. If the spike needs to touch real project files, record those paths and the reason in `spike.md`. Do not treat spike code as production code unless it is explicitly promoted later.
-
-Before creating or running spike code, verify the isolation excludes created by `/pie:init` are present.
+Before creating or running spike code, verify spike isolation from `/pie:init`.
 
 ## `/pie:distill`
 
@@ -157,46 +154,58 @@ Use it when:
 - several partial conclusions accumulated;
 - the user wants a durable checkpoint.
 
-The agent should:
+Behavior:
 
-- summarize findings;
-- update spike and/or intent artifacts;
-- record settled decisions;
-- recommend unresolved decisions;
-- update readiness and the index.
+1. If a spike is active, summarize findings and update the spike record.
+2. Update the parent intent with resolved unknowns, evidence, and current understanding.
+3. Record decisions that are already settled.
+4. Recommend decisions that still need approval.
+5. Update readiness and `docs/pie/index.md`.
 
-## `/pie:decision`
+## `/pie:decision <description>`
 
-Manual decision command.
+Manually record, affirm, reject, or override an intent-level decision.
 
 Use it when:
 
-- the human wants to explicitly record a decision;
+- the human explicitly wants to record a decision;
 - a decision was made outside the current agent flow;
 - the user wants to accept, reject, or override a recommendation;
 - evidence is inconclusive but the user chooses a direction.
 
+Normal clarification and distillation should record settled decisions automatically.
+
+## `/pie:baseline`
+
+Optional. Preview or explicitly generate a Delivery Baseline without starting delivery.
+
+Readiness must pass before baseline creation. If ready:
+
+- update `docs/pie/<intent>/baseline.md`;
+- create or refresh the next immutable snapshot under `docs/pie/<intent>/baselines/`;
+- update `docs/pie/index.md`.
+
+This command does not create a Delivery Ask.
+
 ## `/pie:implement`
 
-Starts direct implementation.
+Start direct implementation.
 
-The agent must:
+Behavior:
 
-1. load project context and active intent;
-2. run readiness check, including project-goal alignment;
-3. create or refresh `baseline.md`;
-4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
-5. create a delivery ask record under `docs/pie/<intent>/asks/`;
-6. mark intent `in_delivery`;
-7. implement from the baseline revision.
+1. Load project context and active intent.
+2. Run the readiness gate.
+3. Create or refresh `baseline.md`.
+4. Create immutable baseline revision under `baselines/`.
+5. Create direct implementation ask under `asks/`.
+6. Mark intent `in_delivery`.
+7. Implement from the baseline revision.
 
-If not ready, the command should fail with blockers.
-
-The ask record should use `delivery_mode: direct`, `target_framework: direct`, and a downstream target such as `implementation-session-YYYY-MM-DD`.
+If readiness fails, report blockers and recommended next steps. Do not invent missing intent.
 
 ## `/pie:export <adapter>`
 
-Exports to a downstream framework.
+Export to a downstream delivery framework.
 
 Current adapters:
 
@@ -205,48 +214,35 @@ Current adapters:
 /pie:export lid
 ```
 
-These target [Spec Kit](https://github.com/github/spec-kit) and [LID](https://github.com/jszmajda/lid), respectively.
+Behavior:
 
-The agent must:
+1. Load project context and active intent.
+2. Run the readiness gate.
+3. Create or refresh `baseline.md`.
+4. Create immutable baseline revision under `baselines/`.
+5. Create export ask under `asks/`.
+6. Load the adapter spec.
+7. Write the seed under `docs/pie/<intent>/exports/`.
+8. Include a `PIE Origin` block.
+9. Mark intent `in_delivery`.
 
-1. load project context and active intent;
-2. run readiness check, including project-goal alignment;
-3. create or refresh `baseline.md`;
-4. create an immutable baseline snapshot under `docs/pie/<intent>/baselines/`;
-5. create a delivery ask record under `docs/pie/<intent>/asks/`;
-6. load the adapter spec;
-7. write under `docs/pie/<intent>/exports/`;
-8. include PIE origin metadata in the export;
-9. mark intent `in_delivery`.
+Repeated export to the same adapter should default to updating the known downstream target while still creating a new ask record.
 
-When exporting the same intent to the same adapter again, default to updating the known downstream target for that adapter. Still create a new ask record for the new handoff. Create a new downstream target only when the user requests it, the work is materially independent, or the downstream framework requires it.
+## `/pie:feedback <description>`
 
-## `/pie:feedback`
+Use when direct implementation or downstream delivery reveals learning that may change intent.
 
-Reconciles delivery feedback back into PIE.
+Behavior:
 
-Use it when delivery reveals:
-
-- a challenged assumption;
-- new material ambiguity;
-- new empirical uncertainty;
-- a preparation gap;
-- intent-changing downstream framework feedback.
-
-Routine implementation details should not churn PIE artifacts.
-
-When possible, feedback should reference a delivery ask:
-
-```text
-/pie:feedback "PIE-ASK-STOCK-SCREENER-SPECKIT-002 exposed an evaluation ambiguity."
-```
-
-If no ask ID is supplied, use the active intent's latest ask from `docs/pie/index.md`. The feedback record should retain `ask_id`, `baseline_id`, `downstream_target_id`, and `target_framework` when known.
-
-## `/pie:baseline`
-
-Optional command for previewing or explicitly generating a Delivery Baseline without starting implementation or export.
-
-The normal workflow does not require it because `/pie:implement` and `/pie:export <adapter>` auto-create or refresh the baseline after readiness passes.
-
-When `/pie:baseline` is used explicitly and readiness passes, update `baseline.md` and create or refresh the next immutable snapshot under `docs/pie/<intent>/baselines/`. It does not create a delivery ask because no handoff has started.
+1. Identify the active intent or infer it from an ask ID.
+2. Record feedback source lineage when known: ask ID, baseline ID, framework, and downstream target.
+3. Classify feedback:
+   - routine implementation detail;
+   - challenged assumption;
+   - new material ambiguity;
+   - new empirical uncertainty;
+   - preparation gap;
+   - project-level drift.
+4. If feedback does not change intent, summarize without churning artifacts.
+5. If it changes intent, update the intent, readiness, index, and downstream impact.
+6. Recommend clarification, spike, baseline revision, seed regeneration, or project update as needed.
