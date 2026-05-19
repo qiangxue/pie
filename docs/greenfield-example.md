@@ -76,8 +76,8 @@ Claude should:
 
 - assess alignment with the Project Goal;
 - create `docs/pie/stock-screener/intent.md`;
-- register the intent in `docs/pie/index.md`;
-- set it as active;
+- register the intent in the derived `docs/pie/index.md`;
+- select it for the current session;
 - assess readiness.
 
 Example response:
@@ -113,31 +113,49 @@ User:
 
 > I care more about finding actionable candidates than identifying textbook VCPs. Ranked output is better than binary output. Use end-of-day data for the first version.
 
-Claude should automatically update the active intent. The user does not need `/pie:distill` for this local convergence.
+Claude should automatically record the explicit decisions: ranked output and daily data for v1. The broader statement about actionable candidates implies a framing shift, so Claude should confirm before recording it as accepted:
+
+```text
+This suggests a material intent decision:
+- Treat VCP as an evidence block inside a broader actionable pre-impulse screener.
+
+Should I record that as the current intent direction?
+```
+
+User:
+
+```text
+Yes, record that.
+```
+
+No `/pie:distill` is needed for this local convergence.
 
 The intent records decisions such as:
 
 ```md
 ### Decision: Prioritize actionable candidates
+- **Decision ID:** DEC-STOCK-SCREENER-001
 - **Decision:** The screener should prioritize actionable pre-impulse candidates rather than strict textbook VCP purity.
 - **Rationale:** The user values candidate discovery over textbook pattern identification.
-- **Source:** User clarification.
+- **Source:** clarification_response
 - **Impact:** VCP structure becomes important evidence, but not the sole product definition.
-- **Status:** Accepted.
+- **Status:** accepted
 
 ### Decision: Use ranked output
+- **Decision ID:** DEC-STOCK-SCREENER-002
 - **Decision:** The screener output should be ranked rather than binary pass/fail.
 - **Rationale:** The user explicitly preferred ranked candidates.
-- **Source:** User clarification.
+- **Source:** clarification_response
 - **Impact:** Candidate scoring becomes central.
-- **Status:** Accepted.
+- **Status:** accepted
 
 ### Decision: Use daily data for v1
+- **Decision ID:** DEC-STOCK-SCREENER-003
 - **Decision:** Version 1 uses daily OHLCV data only.
 - **Rationale:** This keeps the first version tractable.
-- **Source:** User clarification.
+- **Source:** clarification_response
 - **Impact:** Intraday signals are deferred.
-- **Status:** Accepted.
+- **Status:** accepted
 ```
 
 The status may move to `needs_spike` because the product direction is clearer, but scoring still needs evidence.
@@ -170,7 +188,7 @@ A staged score using compression, demand quality, pivot proximity, and structura
 Determines the likely core scoring architecture.
 ```
 
-If Claude writes exploratory code, it goes under `spikes/vcp-scoring/`, not under `docs/` and not in production paths unless explicitly promoted.
+If Claude writes exploratory code, it goes under `spikes/vcp-scoring/`, not under `docs/`. Spike code is exploratory by default; downstream delivery may reuse, rewrite, or discard it according to ordinary engineering judgment.
 
 ## 5. Distill Findings
 
@@ -208,7 +226,7 @@ Status:
 
 ## 6. Deliver
 
-When readiness passes, choose a delivery path.
+When readiness returns `ready`, choose a delivery path. If readiness is `borderline`, Claude should name the judgment call and ask before delivery.
 
 Direct implementation:
 
@@ -256,7 +274,7 @@ If delivery reveals that the intent is incomplete, use feedback.
 
 Claude should:
 
-- classify the feedback as intent-relevant;
+- classify the feedback as intent-impacting;
 - reopen the intent if needed;
 - record the challenged assumption;
 - recommend clarification or a new spike;

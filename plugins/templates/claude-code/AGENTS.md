@@ -7,13 +7,16 @@ This repository uses Progressive Intent Engineering (PIE) when work is not clear
 Agents should:
 
 - assess readiness before implementation or export;
-- clarify only material ambiguity;
+- clarify only material ambiguity, meaning ambiguity where different answers would produce a meaningfully different Delivery Baseline;
 - make reasonable choices for local reversible details;
-- keep `docs/pie/project.md` and `docs/pie/index.md` as durable state;
+- treat `project.md`, `intent.md`, `spike.md`, baseline files, ask records, and export seeds as authoritative;
+- treat `docs/pie/index.md` as a derived registry that can be repaired from artifacts;
+- keep active intent and active spike session-local, not as shared durable state;
 - assess new intents against the Project Goal;
 - use spikes when evidence is needed;
-- record settled decisions automatically when clarification or distillation resolves ambiguity;
-- generate Delivery Baselines only after the readiness gate passes;
+- record explicit settled decisions automatically when clarification or distillation resolves ambiguity;
+- ask before recording inferred decisions or project-framing shifts as accepted;
+- generate Delivery Baselines only when readiness is `ready`, or when readiness is `borderline` and the user confirms;
 - preserve traceability from intent ID to baseline revision to delivery ask to downstream target;
 - send feedback back to PIE only when delivery changes intent.
 
@@ -65,7 +68,7 @@ Start intent work with:
 /pie:intent <name> <description>
 ```
 
-Use `/pie:project` to inspect or update the Project Goal. Use `/pie:intent` to list intents and `/pie:intent <name>` to switch active context.
+Use `/pie:project` to inspect or update the Project Goal. Use `/pie:intent` to list intents and `/pie:intent <name>` to select session context.
 
 ## Readiness Gate
 
@@ -76,14 +79,14 @@ Before `/pie:implement`, `/pie:export <adapter>`, or `/pie:baseline`, confirm:
 - relevant guardrails are reflected;
 - material decisions are made or explicitly deferred;
 - constraints and success criteria are known;
-- no active or undistilled spike blocks delivery;
-- brownfield preparation has been assessed where needed.
+- no active, completed-but-undistilled, or blocking spike blocks delivery;
+- brownfield prerequisite system preparation has been assessed and represented in the intent or baseline.
 
-If readiness fails, report blockers and recommend clarification, spike work, distillation, or project-goal review.
+Classify readiness as `ready`, `not_ready`, or `borderline`. If `not_ready`, stop with blockers. If `borderline`, name the judgment call and ask the user before baselining, implementing, or exporting.
 
 ## Spikes
 
-Use `/pie:spike <name>` for focused evidence gathering under the active intent. Keep experimental code in `spikes/<name>/`. Capture findings in `docs/pie/<intent>/spikes/<name>/spike.md`, then use `/pie:distill` to fold findings back into the parent intent.
+Use `/pie:spike <name>` for focused evidence gathering under an explicit or session-selected intent. Keep experimental code in `spikes/<name>/`. Capture findings in `docs/pie/<intent>/spikes/<name>/spike.md`, then use `/pie:distill` to fold findings back into the parent intent. Spike code is exploratory by default; production reuse is a delivery decision.
 
 ## Delivery And Feedback
 
@@ -98,4 +101,4 @@ Preserve:
 PIE Intent ID -> Delivery Baseline ID -> Delivery Ask ID -> Downstream Target ID
 ```
 
-Use `/pie:feedback <description>` only for delivery findings that change intent. Routine implementation details stay in delivery.
+Use `/pie:feedback <description>` for delivery findings that may change intent. Classify feedback as routine delivery detail, intent-impacting feedback, or ambiguous feedback. Ask the user before reopening PIE for ambiguous feedback.

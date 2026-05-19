@@ -11,7 +11,7 @@ PIE remains upstream. Adapters should not absorb the downstream workflow. They s
 
 ## Output Location
 
-Adapters write under the active intent:
+Adapters write under the explicit or session-selected intent:
 
 ```text
 docs/pie/<intent>/exports/
@@ -19,7 +19,7 @@ docs/pie/<intent>/exports/
   lid-seed.md
 ```
 
-The active intent, baseline state, and export artifact path must also be reflected in `docs/pie/index.md`.
+The selected intent, baseline state, and export artifact path must also be reflected in the derived `docs/pie/index.md`.
 
 Each export must also create or reference:
 

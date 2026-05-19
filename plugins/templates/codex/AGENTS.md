@@ -7,12 +7,15 @@ Use Progressive Intent Engineering (PIE) when work is not clearly ready to imple
 Codex should:
 
 - assess readiness before implementation or export;
-- clarify only material ambiguity;
+- clarify only material ambiguity, meaning ambiguity where different answers would produce a meaningfully different Delivery Baseline;
 - make reasonable choices for local reversible details;
-- keep `docs/pie/project.md` and `docs/pie/index.md` as durable state;
+- treat `project.md`, `intent.md`, `spike.md`, baseline files, ask records, and export seeds as authoritative;
+- treat `docs/pie/index.md` as a derived registry that can be repaired from artifacts;
+- keep active intent and active spike session-local, not as shared durable state;
 - assess new intents against the Project Goal;
 - use spikes when evidence is needed;
-- record settled decisions automatically when clarification or distillation resolves ambiguity;
+- record explicit settled decisions automatically when clarification or distillation resolves ambiguity;
+- ask before recording inferred decisions or project-framing shifts as accepted;
 - preserve traceability from intent ID to baseline revision to delivery ask to downstream target;
 - send feedback back to PIE only when delivery changes intent.
 
@@ -32,7 +35,6 @@ docs/pie/
     asks/
       <ask_id>.md
     exports/
-    preparation-baseline.md
     spikes/
       <spike>/
         spike.md
@@ -73,17 +75,17 @@ Before `PIE implement`, `PIE export <adapter>`, or `PIE baseline`, confirm:
 - relevant guardrails are reflected;
 - material decisions are made or explicitly deferred;
 - constraints and success criteria are known;
-- no active or undistilled spike blocks delivery;
-- brownfield preparation has been assessed where needed.
+- no active, completed-but-undistilled, or blocking spike blocks delivery;
+- brownfield prerequisite system preparation has been assessed and represented in the intent or baseline.
 
-If readiness fails, report blockers and recommend clarification, spike work, distillation, or project-goal review.
+Classify readiness as `ready`, `not_ready`, or `borderline`. If `not_ready`, stop with blockers. If `borderline`, name the judgment call and ask the user before baselining, implementing, or exporting.
 
 ## Behavior Notes
 
-- `PIE init` creates or confirms `docs/pie/project.md` and `docs/pie/index.md`.
+- `PIE init` creates or confirms `docs/pie/project.md` and derived `docs/pie/index.md`.
 - `PIE intent <name>: <description>` creates or updates an intent, assesses Project Goal alignment, and asks only material clarification questions.
-- Clear clarification answers should update durable intent artifacts immediately.
-- `PIE spike <name>` creates or continues a focused investigation under the active intent.
+- Explicit clarification answers should update durable intent artifacts immediately. Inferred decisions require confirmation before being recorded as accepted.
+- `PIE spike <name>` creates or continues a focused investigation under an explicit or session-selected intent.
 - `PIE distill` folds spike findings or long discovery into the parent intent.
 - `PIE implement` and `PIE export <adapter>` create a baseline revision and delivery ask before delivery.
-- `PIE feedback: ...` reconciles only intent-changing delivery feedback.
+- `PIE feedback: ...` classifies feedback as routine delivery detail, intent-impacting feedback, or ambiguous feedback.

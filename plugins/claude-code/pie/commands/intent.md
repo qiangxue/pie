@@ -1,10 +1,10 @@
 ---
-description: Create, list, inspect, or switch PIE intents using durable index state.
+description: Create, list, inspect, or select PIE intents using authoritative artifacts and derived index state.
 ---
 
 # PIE Intent
 
-Use this to create a new intent, list known intents, or switch active intent.
+Use this to create a new intent, list known intents, or select an intent for the current session.
 
 ## Forms
 
@@ -24,15 +24,15 @@ Example:
 
 ### No Name Supplied
 
-1. Load `docs/pie/index.md`.
-2. List all intents and their statuses.
-3. Show the active intent and active spike.
+1. Load authoritative intent artifacts under `docs/pie/<intent>/intent.md`.
+2. Repair `docs/pie/index.md` if it is stale.
+3. List all intents, statuses, readiness classifications, baseline states, latest asks, and child spikes.
 
 ### Existing Name Supplied
 
 1. Load the named intent from `docs/pie/<name>/intent.md`.
-2. Set it as active intent in `docs/pie/index.md`.
-3. Clear active spike unless the user explicitly selects one.
+2. Select it as the current session intent only. Do not write a global active cursor to `docs/pie/index.md`.
+3. Clear any session-local spike selection unless the user explicitly selects one.
 4. Summarize:
    - status;
    - unresolved questions;
@@ -50,20 +50,18 @@ Example:
    - Does it suggest the Project Goal itself may need to evolve?
 4. If alignment is unclear or negative, ask whether to reframe the intent, update the Project Goal, or treat this work as a separate project.
 5. Create `docs/pie/<name>/intent.md`.
-6. Register the intent in `docs/pie/index.md`.
-7. Set it as active intent.
+6. Register the intent in the derived `docs/pie/index.md`.
+7. Select it as the current session intent only.
 8. Assign a stable `intent_id` using `PIE-INTENT-<UPPER-HYPHENATED-NAME>`.
-9. Assess whether the intent is ready for delivery, needs clarification, or needs one or more spikes.
+9. Assess readiness as `ready`, `not_ready`, or `borderline`.
 10. Ask focused clarification questions when needed.
-11. When the user answers a material clarifying question, automatically apply the Convergence Rule:
-   - determine whether the answer resolves a tracked ambiguity;
-   - record any resulting settled decision;
-   - update current understanding;
-   - update material unknowns;
-   - update readiness status;
-   - update `docs/pie/index.md`.
-12. Suggest spikes when empirical evidence is required.
-13. Set or update intent status accordingly.
+11. Apply the materiality test: a question is material only when different answers would produce a meaningfully different Delivery Baseline.
+12. Apply the Convergence Rule:
+   - explicit answer, accepted option, explicit decision, or accepted pending recommendation: record the decision, remove the ambiguity, update current understanding, refresh readiness, and repair `docs/pie/index.md`;
+   - inferred decision, project-framing shift, or partial answer: propose the decision or update understanding, but ask before recording it as accepted;
+   - exploratory remarks and non-material details: do not update PIE artifacts.
+13. Suggest spikes when empirical evidence is required.
+14. Set or update intent status accordingly.
 
 The `intent_id` is the durable identity of the work. Do not change it if the intent matures, delivery happens more than once, or feedback reopens discovery.
 
@@ -82,11 +80,13 @@ project_goal_alignment: aligned|unclear|misaligned
 status: discovering
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
-active: true
+readiness: not_ready
 delivery_baseline: absent
 recommended_next_step: clarify
 ---
 ```
+
+Active context is session-local, not durable project state.
 
 Recommended statuses:
 
@@ -102,7 +102,7 @@ Recommended statuses:
 
 Return:
 
-- `Intent`: active intent name.
+- `Intent`: selected or created intent name.
 - `Project Alignment`: aligned, unclear, or misaligned, with a short reason.
 - `Status`: durable status from the intent artifact and index.
 - `Current Understanding`: brief summary.
@@ -112,4 +112,4 @@ Return:
 - `Delivery Asks`: latest ask IDs and downstream targets, if any.
 - `Recommended Next Step`: clarify, create spike, distill, implement, export, or feedback.
 
-Every change must update durable artifacts and `docs/pie/index.md`. Do not rely on chat history as the source of truth.
+Every change must update authoritative artifacts and repair `docs/pie/index.md`. Do not rely on chat history as the source of truth.

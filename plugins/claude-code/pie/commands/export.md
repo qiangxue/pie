@@ -21,19 +21,21 @@ Examples:
 
 ## Process
 
-1. Load `docs/pie/project.md` and the active intent from `docs/pie/index.md`.
+1. Load `docs/pie/project.md` and the explicit or session-selected intent. If unclear, ask for the intent name.
 2. Run the readiness gate, including project-goal alignment and project guardrails.
-3. Determine whether a current Delivery Baseline exists.
-4. If no current baseline exists or the intent changed since the last handoff, create or refresh `docs/pie/<intent>/baseline.md`.
-5. Create an immutable baseline revision snapshot under `docs/pie/<intent>/baselines/`.
-6. Create a Delivery Ask record under `docs/pie/<intent>/asks/`.
-7. Load the requested adapter instructions:
+3. If readiness is `not_ready`, report blockers and stop.
+4. If readiness is `borderline`, name the judgment call and ask the user before proceeding.
+5. Determine whether a current Delivery Baseline exists.
+6. If no current baseline exists or the intent changed since the last handoff, create or refresh `docs/pie/<intent>/baseline.md`.
+7. Create an immutable baseline revision snapshot under `docs/pie/<intent>/baselines/`.
+8. Create a Delivery Ask record under `docs/pie/<intent>/asks/`.
+9. Load the requested adapter instructions:
    - `speckit` -> `${CLAUDE_PLUGIN_ROOT}/adapters/speckit.md`
    - `lid` -> `${CLAUDE_PLUGIN_ROOT}/adapters/lid.md`
-8. Export from the baseline revision into the requested adapter format.
-9. Write the export under `docs/pie/<intent>/exports/`.
-10. Include PIE origin metadata in the export.
-11. Mark the intent `in_delivery` in the intent artifact and index.
+10. Export from the baseline revision into the requested adapter format.
+11. Write the export under `docs/pie/<intent>/exports/`.
+12. Include PIE origin metadata in the export.
+13. Mark the intent `in_delivery` in the intent artifact and repair the derived index.
 
 ## Traceability
 
@@ -77,7 +79,7 @@ If the adapter name is unknown, list available adapters and stop.
 
 ## If Not Ready
 
-Fail gracefully with blockers and recommended next steps. Do not export by silently inventing intent.
+Fail gracefully with readiness classification, blockers, and recommended next steps. If readiness is `borderline`, ask the user before exporting. Do not export by silently inventing intent.
 
 ## Output
 

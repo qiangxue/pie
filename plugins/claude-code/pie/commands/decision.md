@@ -1,10 +1,10 @@
 ---
-description: Manually record, affirm, or override an intent-level decision.
+description: Manually record, affirm, reject, or override an intent-level decision.
 ---
 
 # PIE Decision
 
-Manually record, affirm, or override a decision for the current active intent.
+Manually record, affirm, reject, or override a decision for the explicit or session-selected intent.
 
 This is not the primary mechanism for normal decision capture. Clarification answers and explicit user decisions in conversation should auto-trigger Convergence when they resolve material ambiguity. `/pie:distill` handles broader synthesis. Use `/pie:decision` when the human wants to explicitly record or override a decision.
 
@@ -29,27 +29,29 @@ Example:
 
 ## Process
 
-1. Load the active intent from `docs/pie/index.md`.
+1. Load the explicit or session-selected intent. If unclear, ask for the intent name.
 2. Normalize the decision into a structured record.
 3. Capture:
+   - decision ID;
    - decision;
    - rationale;
-   - evidence or source;
+   - source: `clarification_response`, `spike_finding`, `explicit_user_decision`, `delivery_feedback`, or `external_input`;
    - impact;
-   - status, usually `accepted` unless the user indicates otherwise;
+   - status: `proposed`, `accepted`, `rejected`, or `superseded`;
    - readiness impact.
 4. Update `docs/pie/<intent>/intent.md`.
-5. Update status in `docs/pie/index.md` when the decision changes maturity.
+5. Repair `docs/pie/index.md` when the decision changes maturity.
 
 ## Decision Record Shape
 
 ```md
 ### Decision: Short title
+- **Decision ID:** DEC-<INTENT-SLUG>-001
 - **Decision:** The decision.
 - **Rationale:** Why this decision is appropriate.
-- **Source:** Explicit user decision, external meeting, accepted recommendation, or override.
+- **Source:** clarification_response, spike_finding, explicit_user_decision, delivery_feedback, or external_input.
 - **Impact:** What changes because of this decision.
-- **Status:** Accepted, rejected, overridden, or deferred.
+- **Status:** proposed, accepted, rejected, or superseded.
 ```
 
 ## Output

@@ -53,10 +53,13 @@ Use ordinary shell tools for validation. If future changes add generated assets 
 - Put Codex prompt workflow guidance in `docs/codex-guide.md` and `plugins/templates/codex/AGENTS.md`.
 - Prefer durable artifact behavior over chat-memory assumptions.
 - Keep `docs/pie/project.md` as project-level context, not an intent or delivery artifact.
+- Treat `project.md`, `intent.md`, `spike.md`, baseline files, ask records, and export seeds as authoritative; `index.md` is derived.
+- Keep active intent and active spike session-local, not in shared durable state.
 - Assess intents against the Project Goal before delivery.
+- Define material ambiguity by whether different answers would produce a meaningfully different Delivery Baseline.
 - Do not add commands that are not part of the canonical PIE command model unless the Claude Code command reference is updated first.
-- Keep `/pie:baseline` optional; `/pie:implement` and `/pie:export <adapter>` should auto-create or refresh baselines after readiness passes.
-- Keep `/pie:decision` as manual record/affirm/override. Ordinary clarification answers should auto-trigger Convergence.
+- Keep `/pie:baseline` optional; `/pie:implement` and `/pie:export <adapter>` should auto-create or refresh baselines after readiness is `ready` or confirmed `borderline`.
+- Keep `/pie:decision` as manual record/affirm/reject/override. Explicit clarification answers should auto-trigger Convergence; inferred or project-shifting decisions require confirmation.
 - Keep `/pie:distill` for spike findings, long or branched discovery, accumulated evidence, or explicit checkpoints.
 
 ## Canonical Command Set
@@ -114,7 +117,7 @@ An adapter should:
 
 - read from the immutable baseline revision under `docs/pie/<intent>/baselines/`;
 - write under `docs/pie/<intent>/exports/`;
-- update `docs/pie/index.md`;
+- repair the derived `docs/pie/index.md`;
 - preserve the PIE Origin block with intent ID, baseline ID, and ask ID;
 - produce a downstream seed, not a full downstream workflow;
 - stop and reopen PIE if export reveals delivery-critical missing intent.

@@ -53,7 +53,7 @@ Also create a Delivery Ask record under:
 docs/pie/<intent>/asks/<ask_id>.md
 ```
 
-Update `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and set the intent status to `in_delivery`.
+Repair `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and intent status.
 
 On repeated export of the same intent to [LID](https://github.com/jszmajda/lid), default to updating the known downstream target if one exists. Create a new downstream target only when the user requests it, the ask is materially independent, or [LID](https://github.com/jszmajda/lid) requires it.
 
@@ -69,6 +69,7 @@ On repeated export of the same intent to [LID](https://github.com/jszmajda/lid),
 | Constraints | HLD/LLD constraints |
 | Success Criteria | Candidate EARS claims and behavioral validation targets |
 | Assumptions | Design assumptions to confirm during [LID](https://github.com/jszmajda/lid) review |
+| Prerequisite System Preparation | HLD/LLD sequencing constraints for existing systems |
 | Deferred Questions | [LID](https://github.com/jszmajda/lid) open questions |
 | Trace to PIE Discovery | Rationale and supporting evidence |
 
@@ -111,6 +112,9 @@ What [LID](https://github.com/jszmajda/lid) should not include in the design.
 
 ### Constraints
 Architectural, operational, product, compliance, or usability constraints.
+
+### Prerequisite System Preparation
+Existing-system preparation that [LID](https://github.com/jszmajda/lid) should account for during design sequencing.
 
 ### Accepted Decisions
 Decisions already settled upstream in PIE.

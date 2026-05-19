@@ -73,23 +73,25 @@ flowchart TD
   Init["/pie:init<br/>Create project context"]
   ProjectCmd["/pie:project<br/>Review project goal"]
   IntentCmd["/pie:intent<br/>Create or select intent"]
-  Ready{"Ready for delivery?"}
+  Ready{"Readiness gate"}
   Clarify["Clarify material ambiguity"]
   NeedEvidence{"Need evidence?"}
   SpikeCmd["/pie:spike<br/>Investigate"]
   Distill["/pie:distill<br/>Fold learning into intent"]
+  Confirm["Confirm borderline judgment"]
   Deliver["/pie:implement<br/>or /pie:export"]
   FeedbackCmd["/pie:feedback<br/>When delivery changes intent"]
 
   Init --> ProjectCmd --> IntentCmd --> Ready
-  Ready -- "No" --> Clarify --> NeedEvidence
+  Ready -- "Not ready" --> Clarify --> NeedEvidence
   NeedEvidence -- "Yes" --> SpikeCmd --> Distill --> Ready
   NeedEvidence -- "No" --> Ready
-  Ready -- "Yes" --> Deliver --> FeedbackCmd
+  Ready -- "Borderline" --> Confirm --> Deliver
+  Ready -- "Ready" --> Deliver --> FeedbackCmd
   FeedbackCmd --> Ready
 ```
 
-PIE is not ceremony. Clarification answers that settle a decision should update the intent immediately. `/pie:distill` is for broader synthesis: spike findings, long discussions, accumulated evidence, or an explicit checkpoint.
+PIE is not ceremony. A material ambiguity is one where different answers would produce a meaningfully different Delivery Baseline. Explicit clarification answers should update the intent immediately. Inferred or project-shifting decisions should be confirmed before they are recorded as accepted. `/pie:distill` is for broader synthesis: spike findings, long discussions, accumulated evidence, or an explicit checkpoint.
 
 ## What PIE Writes
 
@@ -106,7 +108,6 @@ docs/pie/
       <baseline_id>.md
     asks/
       <ask_id>.md
-    preparation-baseline.md
     exports/
     spikes/
       <spike>/
@@ -116,6 +117,8 @@ spikes/
 ```
 
 Spike-only code belongs under top-level `spikes/<spike>/`, not under `docs/`. PIE initialization should exclude `spikes/` from Git, and should exclude both `spikes/` and `docs/pie/` from lint, test, build, and package-publish inputs when those tools are present. `docs/pie/` is durable state and should normally stay versioned.
+
+The artifact files under `docs/pie/` are authoritative. `docs/pie/index.md` is a derived registry that can be regenerated from those artifacts. Active intent and active spike are session-local selections, not shared durable project state.
 
 ## Quick Start: Claude Code
 

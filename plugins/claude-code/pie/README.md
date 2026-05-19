@@ -32,12 +32,12 @@ Claude Code normally exposes plugin commands with the plugin namespace:
 - `/pie:init`: initialize project guidance, Project Goal, `docs/pie/`, and `docs/pie/index.md`.
 - `/pie:project`: display or update the Project Goal, guardrails, and shared principles.
 - `/pie:intent <name> <description>`: create a new intent and assess maturity.
-- `/pie:intent`: list intents and active context.
-- `/pie:intent <name>`: switch active intent and summarize durable state.
-- `/pie:spike <name>`: create, select, or continue a spike under the active intent.
-- `/pie:spike`: list spikes for the active intent.
-- `/pie:distill`: synthesize spike findings, long discovery conversations, or explicit checkpoints into the active intent; record settled decisions and recommend unresolved ones.
-- `/pie:decision <description>`: manually record, affirm, or override an intent-level decision.
+- `/pie:intent`: list intents and durable status.
+- `/pie:intent <name>`: select an intent for the current session and summarize durable state.
+- `/pie:spike <name>`: create, select, or continue a spike under an explicit or session-selected intent.
+- `/pie:spike`: list spikes for the session-selected intent.
+- `/pie:distill`: synthesize spike findings, long discovery conversations, or explicit checkpoints into the selected intent; record settled decisions and recommend unresolved ones.
+- `/pie:decision <description>`: manually record, affirm, reject, or override an intent-level decision.
 - `/pie:implement`: run the readiness gate, create a baseline and ask, and begin direct implementation.
 - `/pie:export <adapter>`: run the readiness gate, create a baseline and ask, and export to [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another adapter.
 - `/pie:feedback <description>`: reconcile delivery feedback back into PIE.

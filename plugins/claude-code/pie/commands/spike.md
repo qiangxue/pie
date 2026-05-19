@@ -1,10 +1,10 @@
 ---
-description: List, create, inspect, select, or continue a spike under the active intent.
+description: List, create, inspect, select, or continue a spike under an explicit or session-selected intent.
 ---
 
 # PIE Spike
 
-Use this to manage spikes associated with the active intent.
+Use this to manage spikes associated with an explicit or session-selected intent.
 
 ## Forms
 
@@ -17,15 +17,16 @@ Use this to manage spikes associated with the active intent.
 
 ### No Name Supplied
 
-1. Load `docs/pie/index.md`.
-2. Identify the active intent.
-3. List spikes under `docs/pie/<intent>/spikes/`.
-4. Show each spike status and decision target.
+1. Identify the explicit or session-selected intent. If unclear, ask for the intent name.
+2. Load spike artifacts under `docs/pie/<intent>/spikes/`.
+3. Repair `docs/pie/index.md` if stale.
+4. List spikes under `docs/pie/<intent>/spikes/`.
+5. Show each spike status and decision target.
 
 ### Existing Spike Name Supplied
 
 1. Load `docs/pie/<intent>/spikes/<name>/spike.md`.
-2. Set it as active spike in `docs/pie/index.md`.
+2. Select it as the current session spike only. Do not write a global active cursor to `docs/pie/index.md`.
 3. Summarize:
    - parent intent;
    - question;
@@ -44,9 +45,9 @@ If the spike does not exist:
    - What would count as a useful result?
 2. Create `docs/pie/<intent>/spikes/<name>/spike.md`.
 3. Create `spikes/<name>/` for spike-only code, fixtures, scripts, notes, and other experimental files.
-4. Register the spike under the active intent in `docs/pie/index.md`.
+4. Register the spike under the selected intent in the derived `docs/pie/index.md`.
 5. Verify spike isolation excludes are present in repository tooling. If `spikes/` is not excluded from Git, or if `spikes/` and `docs/pie/` are not excluded from linting, tests, or package publishing where applicable, update the relevant ignore/config files or stop and ask the user to run `/pie:init`.
-6. Set it as active spike.
+6. Select it as the current session spike only.
 
 ## Spike Metadata
 
@@ -71,15 +72,14 @@ Recommended statuses:
 - `active`
 - `completed`
 - `distilled`
-- `discarded`
-- `promoted`
+- `abandoned`
 
 ## Output
 
 Return:
 
-- `Active Intent`.
-- `Active Spike`, if selected or created.
+- `Intent`.
+- `Spike`, if selected or created.
 - `Question`.
 - `Hypothesis`.
 - `Decision Target`.
@@ -98,6 +98,6 @@ spikes/<name>/
 
 This includes exploratory code, scripts, fixtures, sample data descriptions, analysis notes, and prototypes created only to answer the spike question.
 
-Keep the durable spike record in `docs/pie/<intent>/spikes/<name>/spike.md`. If the spike must touch real project files to gather evidence, record the touched paths in `spike.md` with the reason and disposition. Do not treat spike code as production code unless it is explicitly promoted after distillation or delivery planning.
+Keep the durable spike record in `docs/pie/<intent>/spikes/<name>/spike.md`. If the spike must touch real project files to gather evidence, record the touched paths in `spike.md` with the reason and disposition. Spike code is exploratory by default and should not be treated as production code merely because it exists. Downstream delivery may reuse, rewrite, or discard it according to ordinary engineering judgment.
 
 Before creating or running spike code, verify the isolation excludes from `/pie:init` are present.

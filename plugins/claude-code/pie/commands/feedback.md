@@ -10,11 +10,11 @@ For direct implementation mode, the agent may apply this behavior automatically 
 
 ## Process
 
-1. Load `docs/pie/index.md`.
-2. Identify the active intent or infer the intent from a supplied delivery ask ID.
+1. Identify the intent from a supplied delivery ask ID, explicit context, or session selection. If unclear, ask.
+2. Load authoritative artifacts and repair `docs/pie/index.md` if stale.
 3. Identify the feedback source lineage:
    - supplied `ask_id`, if present in the feedback;
-   - otherwise the active intent's latest ask;
+   - otherwise the selected intent's latest ask;
    - associated `baseline_id`;
    - downstream target ID and framework, when known.
 4. Identify the feedback source:
@@ -23,24 +23,20 @@ For direct implementation mode, the agent may apply this behavior automatically 
    - production incident;
    - user or stakeholder feedback;
    - downstream planning issue.
-5. Classify the feedback:
-   - routine implementation detail;
-   - assumption challenged;
-   - new material ambiguity;
-   - new empirical uncertainty;
-   - preparation gap discovered.
-6. If it does not change intent, summarize briefly and do not churn PIE artifacts.
-7. If an assumption is challenged, update the intent and/or baseline.
-8. If new material ambiguity appears, mark the intent `reopened`.
-9. If new empirical uncertainty appears, recommend or create a spike.
-10. If feedback suggests project-level drift, recommend `/pie:project` and ask whether the Project Goal or guardrails should change.
-11. If a downstream framework is in use, identify whether its seed, spec, plan, or design must be regenerated or patched after the PIE update. PIE adapter seeds live under `docs/pie/<intent>/exports/`.
-12. Update `docs/pie/index.md` with feedback lineage and delivery impact.
-13. If urgency forced code ahead of documentation, add an emergency exception note with required follow-up.
+5. Classify the feedback into one of three outcomes:
+   - routine delivery detail;
+   - intent-impacting feedback;
+   - ambiguous feedback.
+6. Routine delivery detail: summarize briefly and do not churn PIE artifacts.
+7. Intent-impacting feedback: update the intent and/or baseline, mark the intent `reopened` when needed, and repair the derived index.
+8. Ambiguous feedback: ask the user whether to treat it as routine delivery detail or material feedback that reopens intent discovery.
+9. If feedback suggests project-level drift, recommend `/pie:project` and ask whether the Project Goal or guardrails should change.
+10. If a downstream framework is in use, identify whether its seed, spec, plan, or design must be regenerated or patched after the PIE update. PIE adapter seeds live under `docs/pie/<intent>/exports/`.
+11. If urgency forced code ahead of documentation, add an emergency exception note with required follow-up.
 
 ## Feedback Lineage
 
-When known, record feedback source metadata in the active intent:
+When known, record feedback source metadata in the selected intent:
 
 ```yaml
 feedback_source:
@@ -60,5 +56,5 @@ Return:
 - `Feedback Classification`.
 - `Feedback Source`: ask ID, baseline ID, target framework, and downstream target when known.
 - `Artifact Updates`, if any.
-- `Delivery Impact`: continue, revise baseline, regenerate downstream seed/spec, reopen discovery, or create preparation work.
+- `Delivery Impact`: continue, revise baseline, regenerate downstream seed/spec, reopen discovery, or account for prerequisite system preparation.
 - `Recommended Next Step`.

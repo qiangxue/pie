@@ -16,10 +16,15 @@ Before creating a Delivery Baseline, confirm:
 - Material decisions have been made or explicitly deferred as non-blocking.
 - Key constraints and non-negotiables are known.
 - Success criteria are understandable.
+- No active, completed-but-undistilled, or blocking spike prevents delivery.
 - Downstream delivery can proceed without silently inventing intent.
-- For existing systems, prerequisite system preparation has been assessed and separated where needed.
+- For existing systems, prerequisite system preparation has been assessed and represented in the intent or baseline where needed.
 
-If any item fails, do not create a baseline. Report blockers and recommend clarification, spike work, or distillation.
+Classify readiness as:
+
+- `ready`: create or refresh the baseline.
+- `not_ready`: do not create a baseline; report blockers and recommend clarification, spike work, or distillation.
+- `borderline`: name the remaining judgment call and ask the user before baselining.
 
 ## Delivery Baseline Revision
 
@@ -59,28 +64,16 @@ Use this content in both the current baseline and revision snapshot:
 ## Constraints
 ## Success Criteria
 ## Assumptions
+## Prerequisite System Preparation
 ## Deferred Questions
 ## Recommended Delivery Path
 ## Trace to PIE Discovery
 ```
 
-## Preparation Baseline Template
-
-Use `docs/pie/<intent>/preparation-baseline.md` only when existing-system preparation is required:
-
-```md
-# Preparation Baseline - [Preparation Scope]
-## Purpose
-## Current System Constraint
-## Preparation Scope
-## Out of Scope
-## Success Criteria
-## Sequencing
-## Trace to Parent Intent
-```
+PIE does not create a separate preparation baseline. When brownfield work reveals prerequisite system preparation, record it under `Prerequisite System Preparation` and let the downstream delivery path decide sequencing.
 
 ## Output
 
-Create or update the appropriate baseline artifact only if ready. Update `docs/pie/index.md` with the current baseline ID, revision, and path. Keep the baseline concise, stable, and downstream-ready.
+Create or update the baseline artifact only if readiness is `ready` or confirmed `borderline`. Repair `docs/pie/index.md` with the current baseline ID, revision, and path. Keep the baseline concise, stable, and downstream-ready.
 
 This command does not create a Delivery Ask. `/pie:implement` and `/pie:export <adapter>` create ask records when they begin a handoff.

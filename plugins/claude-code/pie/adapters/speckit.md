@@ -49,7 +49,7 @@ Also create a Delivery Ask record under:
 docs/pie/<intent>/asks/<ask_id>.md
 ```
 
-Update `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and set the intent status to `in_delivery`.
+Repair `docs/pie/index.md` with the ask ID, baseline ID, export path, downstream target, and intent status.
 
 On repeated export of the same intent to [Spec Kit](https://github.com/github/spec-kit), default to updating the known downstream target if one exists. Create a new downstream target only when the user requests it, the ask is materially independent, or [Spec Kit](https://github.com/github/spec-kit) requires it.
 
@@ -65,6 +65,7 @@ On repeated export of the same intent to [Spec Kit](https://github.com/github/sp
 | Constraints | Constitution/spec constraints and planning guardrails |
 | Success Criteria | Acceptance expectations and validation targets |
 | Assumptions | Assumptions to preserve or revisit in clarification |
+| Prerequisite System Preparation | Planning constraints or sequencing notes for existing systems |
 | Deferred Questions | Known clarification inputs, marked non-blocking unless stated otherwise |
 | Trace to PIE Discovery | Source references for rationale |
 
@@ -118,6 +119,9 @@ Relevant product, user, domain, system, and operational context.
 - ...
 
 ## Assumptions
+- ...
+
+## Prerequisite System Preparation
 - ...
 
 ## Deferred Clarifications

@@ -143,18 +143,20 @@ Claude should update the intent immediately:
 
 ```md
 ### Decision: Alert on first entry into the top candidate tier
+- **Decision ID:** DEC-STOCK-ALERTS-001
 - **Decision:** Create an alert when a ticker first crosses into the top candidate tier.
 - **Rationale:** This matches the ranked-candidate purpose and avoids repeated threshold alerts.
-- **Source:** User clarification.
+- **Source:** clarification_response
 - **Impact:** The system needs candidate state across runs and duplicate suppression.
-- **Status:** Accepted.
+- **Status:** accepted
 
 ### Decision: Use local CSV alerts for v1
+- **Decision ID:** DEC-STOCK-ALERTS-002
 - **Decision:** Version 1 writes alerts to a local CSV.
 - **Rationale:** This keeps delivery local and avoids notification-channel complexity.
-- **Source:** User clarification.
+- **Source:** clarification_response
 - **Impact:** Email, SMS, push, and broker integrations are out of scope.
-- **Status:** Accepted.
+- **Status:** accepted
 ```
 
 No `/pie:distill` is needed for this single clear clarification answer.
@@ -210,14 +212,14 @@ Recorded decision:
 - Add a small candidate-state store boundary before implementing alerts.
 
 Intent status:
-- stock-alerts: needs_spike -> ready_for_delivery for preparation work
+- stock-alerts: needs_spike -> ready_for_delivery
 ```
 
-This is the brownfield move: PIE separates "make the system ready" from "deliver the new behavior" when that reduces risk.
+This is the brownfield move: PIE records prerequisite system preparation in the intent and Delivery Baseline without creating a separate PIE lifecycle artifact.
 
-## 6. Deliver Preparation
+## 6. Deliver
 
-If preparation is small and clear:
+If direct implementation is appropriate:
 
 ```text
 /pie:implement
@@ -237,7 +239,7 @@ docs/pie/stock-alerts/baselines/PIE-BASELINE-STOCK-ALERTS-R1.md
 docs/pie/stock-alerts/asks/PIE-ASK-STOCK-ALERTS-SPECKIT-001.md
 ```
 
-After preparation is complete, Claude updates PIE state and returns to the alert intent for feature delivery.
+The Delivery Baseline should include a `Prerequisite System Preparation` section. Direct implementation, [Spec Kit](https://github.com/github/spec-kit), or [LID](https://github.com/jszmajda/lid) decides whether to sequence that preparation separately or deliver it with the alert behavior.
 
 ## 7. Feed Back Downstream Learning
 
@@ -253,7 +255,7 @@ Use feedback:
 
 Claude should:
 
-- classify it as intent-relevant;
+- classify it as intent-impacting;
 - reopen `stock-alerts` if needed;
 - add a material unknown;
 - recommend clarification or a spike;
@@ -272,7 +274,7 @@ Routine implementation details should stay out of PIE.
 -> auto-record clarification decisions
 /pie:spike <name>
 /pie:distill
--> create preparation baseline if needed
+-> include prerequisite system preparation in the Delivery Baseline if needed
 /pie:implement or /pie:export <adapter>
 /pie:feedback <description> when delivery changes intent
 ```

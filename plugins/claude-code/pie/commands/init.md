@@ -19,7 +19,7 @@ Initialize PIE in the repository.
 9. Create `docs/pie/` if it does not exist.
 10. Create `docs/pie/project.md` if it does not exist.
 11. Create `docs/pie/index.md` if it does not exist.
-12. If `docs/pie/index.md` exists, preserve current entries and normalize only obviously missing sections.
+12. If `docs/pie/index.md` exists, repair it from authoritative artifacts rather than treating it as source of truth.
 13. Enforce spike isolation in repository tooling:
    - ensure `.gitignore` contains `spikes/`;
    - ensure `.eslintignore` contains `spikes/` and `docs/pie/` when the repository uses ESLint ignore files;
@@ -67,9 +67,6 @@ Use this shape for greenfield projects:
 ## Project Guardrails
 
 ## Shared Project Principles
-
-## Active Intents
-- None yet.
 ```
 
 Use this shape for brownfield projects:
@@ -88,9 +85,6 @@ Use this shape for brownfield projects:
 ## Project-Level Decisions
 
 ## Open Project-Level Questions
-
-## Active Intents
-- None yet.
 ```
 
 ## Index Template
@@ -103,13 +97,14 @@ Use this shape for a new `docs/pie/index.md`:
 ## Project Context
 - Project artifact: docs/pie/project.md
 
-## Active Context
-- Active intent: none
-- Active spike: none
+## State Model
+- Artifact files are authoritative.
+- This index is derived and may be regenerated from project, intent, spike, baseline, ask, and export artifacts.
+- Active intent and active spike are session-local; they are not stored here.
 
 ## Intents
-| Intent | Intent ID | Status | Delivery Baseline | Latest Ask | Open Spikes | Last Updated |
-|---|---|---|---|---|---:|---|
+| Intent | Intent ID | Status | Readiness | Delivery Baseline | Latest Ask | Open Spikes | Last Updated |
+|---|---|---|---|---|---|---:|---|
 
 ## Intent Details
 ```
@@ -120,7 +115,7 @@ Make the smallest useful repository change, then summarize:
 
 - which project-level PIE conventions were added;
 - whether `docs/pie/project.md` was created or updated;
-- whether `docs/pie/index.md` was created or updated;
+- whether derived `docs/pie/index.md` was created or repaired;
 - which ignore/tooling files were updated for spike isolation;
 - where PIE artifacts should live;
 - which slash commands the project should use.
