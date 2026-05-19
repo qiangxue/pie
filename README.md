@@ -28,70 +28,61 @@ Use PIE when:
 
 For a tiny, obvious code change, PIE should stay out of the way.
 
-## The Core Idea
+## How PIE Works
 
 PIE keeps one project-level goal, then matures individual intents under that goal until they pass a readiness gate.
 
 ```mermaid
 flowchart TD
-  Project["Project Goal<br/>What this project is fundamentally for"]
-  Intent["Intent<br/>Specific outcome to clarify"]
-  Spike["Spike<br/>Evidence for one uncertainty"]
-  Decision["Decision<br/>Settled choice with rationale"]
-  Baseline["Delivery Baseline<br/>Stable handoff snapshot"]
-  Ask["Delivery Ask<br/>Traceable handoff record"]
-  Delivery["Direct implementation<br/>or downstream framework"]
-  Feedback["Feedback<br/>Intent-changing learning"]
-
-  Project --> Intent
-  Intent --> Spike
-  Spike --> Decision
-  Intent --> Decision
-  Decision --> Baseline
-  Baseline --> Ask
-  Ask --> Delivery
-  Delivery --> Feedback
-  Feedback --> Intent
-```
-
-The important distinction is simple:
-
-- **Project Goal**: what the project is fundamentally trying to accomplish.
-- **Intent**: one specific outcome to clarify and eventually deliver.
-- **Spike**: focused evidence gathering for one uncertainty.
-- **Decision**: a settled choice with rationale and impact.
-- **Delivery Baseline**: the delivery-ready snapshot of the intent.
-- **Delivery Ask**: the traceable handoff to direct implementation, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another delivery path.
-- **Feedback**: delivery-stage learning that changes the intent.
-
-PIE does not create recursive intent trees or downstream task breakdowns. Large delivery decomposition belongs to delivery frameworks or implementation planning.
-
-## Typical Workflow
-
-```mermaid
-flowchart TD
-  Init["/pie:init<br/>Create project context"]
-  ProjectCmd["/pie:project<br/>Review project goal"]
-  IntentCmd["/pie:intent<br/>Create or select intent"]
-  Ready{"Readiness gate"}
-  Clarify["Clarify material ambiguity"]
+  Init["/pie:init<br/>Create Project Goal and durable state"]
+  ProjectCmd["/pie:project<br/>Review project guardrails"]
+  IntentCmd["/pie:intent<br/>Create or select an Intent"]
+  Ready{"Readiness gate<br/>ready / not_ready / borderline"}
+  Clarify["Clarify material ambiguity<br/>Record explicit Decisions"]
   NeedEvidence{"Need evidence?"}
-  SpikeCmd["/pie:spike<br/>Investigate"]
-  Distill["/pie:distill<br/>Fold learning into intent"]
+  SpikeCmd["/pie:spike<br/>Investigate one uncertainty"]
+  Distill["/pie:distill<br/>Fold findings into Intent"]
   Confirm["Confirm borderline judgment"]
   Deliver["/pie:implement<br/>or /pie:export"]
-  FeedbackCmd["/pie:feedback<br/>When delivery changes intent"]
+  Baseline["Delivery Baseline + Ask<br/>Traceable handoff"]
+  FeedbackCmd["/pie:feedback<br/>Return intent-changing learning"]
 
   Init --> ProjectCmd --> IntentCmd --> Ready
   Ready -- "Not ready" --> Clarify --> NeedEvidence
   NeedEvidence -- "Yes" --> SpikeCmd --> Distill --> Ready
   NeedEvidence -- "No" --> Ready
   Ready -- "Borderline" --> Confirm --> Deliver
-  Ready -- "Ready" --> Deliver --> FeedbackCmd
+  Ready -- "Ready" --> Deliver
+  Deliver --> Baseline --> FeedbackCmd
   FeedbackCmd --> Ready
+
+  classDef project fill:#eef7ff,stroke:#4b8bbe,color:#172033
+  classDef discovery fill:#fff7e6,stroke:#d28a00,color:#172033
+  classDef evidence fill:#f0fdf4,stroke:#3f9b54,color:#172033
+  classDef delivery fill:#f5f0ff,stroke:#7c5cc4,color:#172033
+  classDef feedback fill:#fff1f2,stroke:#c95f6a,color:#172033
+
+  class Init,ProjectCmd project
+  class IntentCmd,Ready,Clarify,Confirm discovery
+  class NeedEvidence,SpikeCmd,Distill evidence
+  class Deliver,Baseline delivery
+  class FeedbackCmd feedback
 ```
 
-PIE is not ceremony. A material ambiguity is one where different answers would produce a meaningfully different Delivery Baseline. Explicit clarification answers should update the intent immediately. Inferred or project-shifting decisions should be confirmed before they are recorded as accepted. `/pie:distill` is for broader synthesis: spike findings, long discussions, accumulated evidence, or an explicit checkpoint.
+The core ideas are:
+
+- **Project Goal**: the durable project-level mission and guardrails.
+- **Intent**: one specific outcome that needs to become delivery-ready.
+- **Material ambiguity**: an open question where different answers would produce a meaningfully different Delivery Baseline.
+- **Decision**: a settled choice recorded with rationale, source, impact, and status.
+- **Spike**: focused evidence gathering for one uncertainty.
+- **Delivery Baseline**: the stable handoff snapshot used by direct implementation, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another delivery path.
+- **Delivery Ask**: the traceable handoff record that links the Intent to the Baseline and downstream target.
+- **Feedback**: delivery-stage learning that changes the intent and should flow back into PIE.
+
+PIE is not ceremony. Explicit clarification answers should update the intent immediately. Inferred or project-shifting decisions should be confirmed before they are recorded as accepted. `/pie:distill` is for broader synthesis: spike findings, long discussions, accumulated evidence, or an explicit checkpoint.
+
+PIE does not create recursive intent trees or downstream task breakdowns. Large delivery decomposition belongs to delivery frameworks or implementation planning.
 
 ## What PIE Writes
 
