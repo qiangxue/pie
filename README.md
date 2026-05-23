@@ -33,52 +33,44 @@ For a tiny, obvious code change, PIE should stay out of the way.
 PIE keeps one project-level goal, then matures individual intents under that goal until they pass a readiness gate.
 
 ```mermaid
-flowchart TD
-  Init["/pie:init<br/>Create Project Goal and durable state"]
-  ProjectCmd["/pie:project<br/>Review project guardrails"]
-  IntentCmd["/pie:intent<br/>Create or select an Intent"]
-  Ready{"Readiness gate<br/>ready / not_ready / borderline"}
-  Clarify["Clarify material ambiguity<br/>Record explicit Decisions"]
-  NeedEvidence{"Need evidence?"}
-  SpikeCmd["/pie:spike<br/>Investigate one uncertainty"]
-  Distill["/pie:distill<br/>Fold findings into Intent"]
-  Confirm["Confirm borderline judgment"]
-  Deliver["/pie:implement<br/>or /pie:export"]
-  Baseline["Delivery Baseline + Ask<br/>Traceable handoff"]
-  FeedbackCmd["/pie:feedback<br/>Return intent-changing learning"]
+flowchart LR
+  Project["<b>1. Init / Project</b><br/>Set goal and guardrails"]
+  Delivery["<b>3. Implement / Export</b><br/>Build or hand off"]
 
-  Init --> ProjectCmd --> IntentCmd --> Ready
-  Ready -- "Not ready" --> Clarify --> NeedEvidence
-  NeedEvidence -- "Yes" --> SpikeCmd --> Distill --> Ready
-  NeedEvidence -- "No" --> Ready
-  Ready -- "Borderline" --> Confirm --> Deliver
-  Ready -- "Ready" --> Deliver
-  Deliver --> Baseline --> FeedbackCmd
-  FeedbackCmd --> Ready
+  subgraph Intent["<b>2. Intent refinement</b>"]
+    direction LR
+    Clarify(("Clarify<br/>ambiguity"))
+    Evidence(("Gather<br/>evidence"))
+    Decide(("Record<br/>decisions"))
+    Ready(("Check<br/>readiness"))
 
-  classDef project fill:#eef7ff,stroke:#4b8bbe,color:#172033
-  classDef discovery fill:#fff7e6,stroke:#d28a00,color:#172033
-  classDef evidence fill:#f0fdf4,stroke:#3f9b54,color:#172033
-  classDef delivery fill:#f5f0ff,stroke:#7c5cc4,color:#172033
-  classDef feedback fill:#fff1f2,stroke:#c95f6a,color:#172033
+    Clarify --> Evidence --> Decide --> Ready
+    Ready -. "refine" .-> Clarify
+  end
 
-  class Init,ProjectCmd project
-  class IntentCmd,Ready,Clarify,Confirm discovery
-  class NeedEvidence,SpikeCmd,Distill evidence
-  class Deliver,Baseline delivery
-  class FeedbackCmd feedback
+  Project --> Intent
+  Intent -- "ready" --> Delivery
+  Delivery -. "feedback" .-> Intent
+
+  classDef project fill:#eef7ff,stroke:#4b8bbe,stroke-width:1.5px,color:#172033
+  classDef intentNode fill:#fff7e6,stroke:#d28a00,stroke-width:1.5px,color:#172033
+  classDef delivery fill:#f5f0ff,stroke:#7c5cc4,stroke-width:1.5px,color:#172033
+  style Intent fill:#fffdf0,stroke:#d28a00,stroke-width:1.5px,color:#172033
+
+  class Project project
+  class Clarify,Evidence,Decide,Ready intentNode
+  class Delivery delivery
 ```
 
 The core ideas are:
 
-- **Project Goal**: the durable project-level mission and guardrails.
+- **Init / Project**: the durable project-level mission and guardrails.
 - **Intent**: one specific outcome that needs to become delivery-ready.
-- **Material ambiguity**: an open question where different answers would produce a meaningfully different Delivery Baseline.
-- **Decision**: a settled choice recorded with rationale, source, impact, and status.
-- **Spike**: focused evidence gathering for one uncertainty.
-- **Delivery Baseline**: the stable handoff snapshot used by direct implementation, [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another delivery path.
-- **Delivery Ask**: the traceable handoff record that links the Intent to the Baseline and downstream target.
+- **Spike**: focused evidence gathering when the intent needs facts before a decision.
+- **Implement / Export**: direct implementation or handoff to [Spec Kit](https://github.com/github/spec-kit), [LID](https://github.com/jszmajda/lid), or another delivery path.
 - **Feedback**: delivery-stage learning that changes the intent and should flow back into PIE.
+
+Under the hood, PIE records decisions, readiness, Delivery Baselines, and Delivery Asks so each implementation or export is traceable.
 
 PIE is not ceremony. Explicit clarification answers should update the intent immediately. Inferred or project-shifting decisions should be confirmed before they are recorded as accepted. `/pie:distill` is for broader synthesis: spike findings, long discussions, accumulated evidence, or an explicit checkpoint.
 
